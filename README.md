@@ -4,6 +4,8 @@
 
 技术栈：C# / .NET 8 / WPF / MVVM（CommunityToolkit.Mvvm），`Microsoft.Win32.Registry` 读注册表，`System.IO` 做文件扫描，WMI 做系统还原点，`System.Text.Json` 存配置与日志。
 
+🌐 GitHub：https://github.com/Sun12056/GhostCleaner ｜ 📄 许可证：MIT
+
 📖 **使用说明（面向用户）**：[docs/使用手册.md](docs/使用手册.md)
 （启动方式、扫描流程、风险等级、隔离区还原、白名单、常见问题都在里面）
 
