@@ -30,6 +30,29 @@ public sealed class SoftwareDirectoryInspector : ISoftwareDirectoryInspector
             return null;
         }
 
+        // 顶层结构快照：Portable / 游戏 / 开发项目 / 用户数据识别只需要看这一层
+        try
+        {
+            foreach (var entry in rootInfo.EnumerateFileSystemInfos("*", new EnumerationOptions
+            {
+                RecurseSubdirectories = false,
+                IgnoreInaccessible = true,
+            }))
+            {
+                ct.ThrowIfCancellationRequested();
+                if ((entry.Attributes & FileAttributes.Directory) != 0) info.TopLevelDirectoryNames.Add(entry.Name);
+                else info.TopLevelFileNames.Add(entry.Name);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            // 顶层不可枚举时按空结构继续
+        }
+
         int fileCount = 0, dllCount = 0, mediaCount = 0, archiveCount = 0, userDataFileCount = 0;
         long totalSize = 0;
         var lastWrite = info.LastModified;
@@ -73,6 +96,9 @@ public sealed class SoftwareDirectoryInspector : ISoftwareDirectoryInspector
                 totalSize += length;
                 if (writeTime > lastWrite) lastWrite = writeTime;
 
+                if (info.FileNameSamples.Count < SoftwareDirectoryInfo.MaxNameSamples && !info.FileNameSamples.Contains(file.Name))
+                    info.FileNameSamples.Add(file.Name);
+
                 var ext = file.Extension.ToLowerInvariant();
                 if (ext == ".exe") executables.Add((file.FullName, length));
                 else if (ext is ".dll" or ".node") dllCount++;
@@ -107,6 +133,9 @@ public sealed class SoftwareDirectoryInspector : ISoftwareDirectoryInspector
             {
                 ct.ThrowIfCancellationRequested();
                 var name = sub.Name.ToLowerInvariant();
+
+                if (info.AllDirectoryNames.Count < SoftwareDirectoryInfo.MaxNameSamples && !info.AllDirectoryNames.Contains(sub.Name))
+                    info.AllDirectoryNames.Add(sub.Name);
 
                 if (Heuristics.IsResourceDirectory(name) && !info.ResourceDirectories.Contains(sub.Name))
                     info.ResourceDirectories.Add(sub.Name);

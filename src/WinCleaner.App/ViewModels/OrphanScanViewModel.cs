@@ -204,6 +204,42 @@ public sealed partial class OrphanScanViewModel : ObservableObject
 
     public int LowRiskCount => Results.Count(x => x.Risk == RiskLevel.Low && !x.IsExcluded);
 
+    // ---------------- v0.1：可解释性汇总 ----------------
+
+    /// <summary>高概率及以上（高概率 / 非常高概率）残留数量。</summary>
+    public int HighConfidenceCount =>
+        Results.Count(x => x.ConfidenceLevel >= OrphanConfidenceLevel.HighProbability && !x.IsExcluded);
+
+    /// <summary>需要人工确认的数量（建议 Review）。</summary>
+    public int ReviewCount => Results.Count(x => x.Recommendation == CleanupRecommendation.Review && !x.IsExcluded);
+
+    /// <summary>受保护 / 已排除的数量。</summary>
+    public int ProtectedCount => Results.Count(x => x.IsProtected || x.IsExcluded);
+
+    /// <summary>带警告（扫描不完整等）的数量。</summary>
+    public int WarningCount => Results.Count(x => x.HasWarnings);
+
+    public long TotalSize => Results.Where(x => !x.IsExcluded).Sum(x => x.SizeBytes);
+
+    /// <summary>面向用户的总结——不使用"确定是残留""可以放心删除"这类绝对表述。</summary>
+    public string ResultSummaryText
+    {
+        get
+        {
+            if (Results.Count == 0) return "尚未发现疑似软件残留。";
+
+            return $"发现 {Results.Count} 个疑似软件残留，共 {FileSizeFormatter.Format(TotalSize)}。"
+                   + $"其中 {HighConfidenceCount} 个为高概率残留，{ReviewCount} 个需要人工确认，"
+                   + $"{ProtectedCount} 个受保护或已排除。"
+                   + "GhostCleaner 已给出每项的判断依据，并默认采用可恢复的隔离方式。";
+        }
+    }
+
+    /// <summary>本次扫描的全局警告（例如"关联来源未完成检查"）。</summary>
+    public ObservableCollection<string> ScanWarnings { get; } = new();
+
+    public bool HasScanWarnings => ScanWarnings.Count > 0;
+
     // ---------- 命令 ----------
 
     [RelayCommand(CanExecute = nameof(IsIdle))]
@@ -223,6 +259,7 @@ public sealed partial class OrphanScanViewModel : ObservableObject
         IsScanning = true;
         ProgressValue = 0;
         Results.Clear();
+        ScanWarnings.Clear();
         SelectedItem = null;
         StatusText = "准备扫描…";
 
@@ -262,10 +299,19 @@ public sealed partial class OrphanScanViewModel : ObservableObject
             OnPropertyChanged(nameof(ResultCount));
             UpdateSelection();
 
-            StatusText = $"扫描完成：发现 {items.Count} 个疑似孤儿软件残留（耗时 {sw.Elapsed.TotalSeconds:F1} 秒）。"
-                       + " 默认未勾选任何条目，请人工确认后再处理。";
+            // 汇总本次扫描的全局警告（例如某个关联来源未完成检查）
+            foreach (var warning in items.SelectMany(i => i.Warnings).Distinct())
+                ScanWarnings.Add(warning);
+
+            OnPropertyChanged(nameof(HasScanWarnings));
+
+            StatusText = $"扫描完成：发现 {items.Count} 个疑似软件残留"
+                         + $"（高概率 {HighConfidenceCount} 个，需人工确认 {ReviewCount} 个，受保护 {ProtectedCount} 个），"
+                         + $"耗时 {sw.Elapsed.TotalSeconds:F1} 秒。默认未勾选任何条目。";
             _log.Info("Scan", "Scan",
-                $"扫描完成：根路径 {roots.Count} 个，发现 {items.Count} 个疑似孤儿软件残留，耗时 {sw.Elapsed.TotalSeconds:F1}s");
+                $"扫描完成：根路径 {roots.Count} 个，发现 {items.Count} 个疑似软件残留"
+                + $"（高概率 {HighConfidenceCount}，待确认 {ReviewCount}，受保护 {ProtectedCount}），"
+                + $"耗时 {sw.Elapsed.TotalSeconds:F1}s");
         }
         catch (OperationCanceledException)
         {
@@ -639,6 +685,12 @@ public sealed partial class OrphanScanViewModel : ObservableObject
         OnPropertyChanged(nameof(HighRiskCount));
         OnPropertyChanged(nameof(MediumRiskCount));
         OnPropertyChanged(nameof(LowRiskCount));
+        OnPropertyChanged(nameof(HighConfidenceCount));
+        OnPropertyChanged(nameof(ReviewCount));
+        OnPropertyChanged(nameof(ProtectedCount));
+        OnPropertyChanged(nameof(WarningCount));
+        OnPropertyChanged(nameof(TotalSize));
+        OnPropertyChanged(nameof(ResultSummaryText));
         NotifyCleanCommands();
     }
 

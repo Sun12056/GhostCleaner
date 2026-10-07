@@ -64,7 +64,8 @@ public sealed class QuarantineManager : IQuarantineManager
         string sourcePath,
         string? displayName = null,
         IProgress<string>? progress = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        QuarantineContext? context = null)
     {
         var source = PathUtils.Normalize(sourcePath);
         if (!Directory.Exists(source) && !File.Exists(source))
@@ -104,6 +105,12 @@ public sealed class QuarantineManager : IQuarantineManager
             CreatedAt = DateTime.Now,
             ExpireAt = DateTime.Now.AddDays(retention),
             DisplayName = displayName ?? leaf,
+            Reason = context?.Reason,
+            ConfidenceScore = context?.ConfidenceScore ?? 0,
+            ConfidenceLevel = context?.ConfidenceLevel ?? OrphanConfidenceLevel.Normal,
+            Risk = context?.Risk ?? RiskLevel.Low,
+            Recommendation = context?.Recommendation ?? CleanupRecommendation.Keep,
+            Warnings = context?.Warnings ?? Array.Empty<string>(),
         };
 
         await WriteManifestAsync(entryDir, entry, cancellationToken).ConfigureAwait(false);

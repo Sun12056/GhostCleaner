@@ -44,6 +44,20 @@ public sealed class SoftwareDirectoryInfo
 
     public List<string> UserDataSamples { get; } = new();
 
+    /// <summary>顶层子目录名（用于 Portable / 游戏 / 开发项目 / 用户数据识别）。</summary>
+    public List<string> TopLevelDirectoryNames { get; } = new();
+
+    /// <summary>顶层文件名（同上）。</summary>
+    public List<string> TopLevelFileNames { get; } = new();
+
+    /// <summary>递归子目录名（去重，最多 <see cref="MaxNameSamples"/> 个）。</summary>
+    public List<string> AllDirectoryNames { get; } = new();
+
+    /// <summary>文件名样本（去重，最多 <see cref="MaxNameSamples"/> 个）。</summary>
+    public List<string> FileNameSamples { get; } = new();
+
+    public const int MaxNameSamples = 300;
+
     /// <summary>软件特征总分（0~100+）。</summary>
     public int SoftwareScore { get; set; }
 

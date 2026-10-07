@@ -107,6 +107,23 @@ public sealed class CleanupService
                 continue;
             }
 
+            // 受保护内容（用户数据 / 游戏 / 开发项目 / 系统关键路径）：
+            // 只允许可恢复的隔离与回收站，永久删除一律拒绝。
+            if (item.IsProtected && action == CleanActionType.PermanentDelete)
+            {
+                result.SkippedCount++;
+                item.OperationResult = "已跳过（受保护内容，禁止永久删除）";
+                _log.Warning("Clean", ActionText(action),
+                    "受保护内容，禁止永久删除：" + (item.ProtectionReason ?? ""), item.Path, item.SizeBytes);
+                continue;
+            }
+
+            if (item.IsProtected)
+            {
+                _log.Warning("Clean", ActionText(action),
+                    "受保护内容仍被处理（可恢复动作）：" + (item.ProtectionReason ?? ""), item.Path, item.SizeBytes);
+            }
+
             try
             {
                 progress?.Report($"正在处理：{item.Path}");
@@ -114,7 +131,9 @@ public sealed class CleanupService
                 switch (action)
                 {
                     case CleanActionType.Quarantine:
-                        var entry = await _quarantine.MoveToQuarantineAsync(item.Path, item.DisplayName, progress, cancellationToken).ConfigureAwait(false);
+                        var entry = await _quarantine.MoveToQuarantineAsync(
+                            item.Path, item.DisplayName, progress, cancellationToken, QuarantineContext.FromItem(item))
+                            .ConfigureAwait(false);
                         item.OperationResult = $"已移到隔离区（{entry.Id}）";
                         break;
 

@@ -16,4 +16,25 @@ public interface IAssociationIndex
 
     /// <summary>索引中的路径总数（诊断用）。</summary>
     int Count { get; }
+
+    /// <summary>
+    /// 各采集源的健康状态。Scanner 必须据此区分"确认没有引用"与"未能完成检查"。
+    /// </summary>
+    IReadOnlyList<AssociationSourceHealth> SourceHealth { get; }
+
+    /// <summary>某个关联来源的结果是否可信（至少有一个覆盖它的采集器成功且可用）。</summary>
+    bool IsSourceUsable(AssociationSource source)
+    {
+        var covered = SourceHealth.Where(h => h.Covers(source)).ToList();
+        if (covered.Count == 0) return false;
+        return covered.Any(h => h.Status == AssociationSourceStatus.Success);
+    }
+
+    /// <summary>所有采集源是否都成功完成。</summary>
+    bool IsFullyHealthy => SourceHealth.Count > 0 && SourceHealth.All(h => h.Status == AssociationSourceStatus.Success);
+
+    /// <summary>失败或未完成的来源。</summary>
+    IReadOnlyList<AssociationSourceHealth> UnhealthySources =>
+        SourceHealth.Where(h => h.Status is AssociationSourceStatus.Failed or AssociationSourceStatus.Partial or AssociationSourceStatus.NotRun)
+                    .ToList();
 }

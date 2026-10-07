@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using WinCleaner.App.Services;
 using WinCleaner.Core.Interfaces;
 using WinCleaner.Core.Models;
+using WinCleaner.Registry;
 
 namespace WinCleaner.App.ViewModels;
 
@@ -26,6 +27,9 @@ public sealed partial class RegistryIssuesViewModel : ObservableObject
     }
 
     public ObservableCollection<RegistryIssue> Issues { get; }
+
+    /// <summary>Beta 提示：注册表清理在 v0.1 不是稳定功能。</summary>
+    public string FeatureNotice => InvalidRegistryScanner.FeatureNotice;
 
     public bool IsBusy
     {

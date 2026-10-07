@@ -9,10 +9,22 @@ namespace WinCleaner.Registry;
 
 /// <summary>
 /// 无效注册表项扫描与清理：无效卸载项 / 无效文件关联 / 无效服务 / 无效启动项。
-/// 安全约束：任何删除前都会先用 reg.exe 导出备份（.reg）+ 生成 JSON 清单。
+///
+/// ⚠ <b>状态：Beta / Experimental（v0.1）</b>
+/// GhostCleaner v0.1 的核心目标是"孤儿软件目录检测"，注册表清理不作为稳定功能。
+/// 使用约束：
+/// 1. 所有删除操作都会先用 reg.exe 导出 .reg 备份，并生成 JSON 清单；
+/// 2. 不允许批量无确认删除；
+/// 3. "路径不存在"不再直接等同于"注册表项无效" —— 外置硬盘未连接、网络盘断开、
+///    权限问题、按需安装组件都会造成路径临时不可达。
 /// </summary>
 public sealed class InvalidRegistryScanner : IRegistryCleaner
 {
+    /// <summary>Beta 提示文案（UI 必须展示）。</summary>
+    public const string FeatureNotice =
+        "注册表清理为 Beta / 实验性功能：路径不存在并不等于软件已卸载（可能是外置硬盘未连接或权限问题）。"
+        + "删除前会自动 reg export 备份，且必须逐项人工确认，不支持批量无确认删除。";
+
     private readonly string _backupRoot;
 
     public InvalidRegistryScanner(string backupRoot)
@@ -58,13 +70,15 @@ public sealed class InvalidRegistryScanner : IRegistryCleaner
             var installDir = CommandLinePathParser.ParseDirectoryPath(entry.InstallLocation);
             var icon = CommandLinePathParser.ParseIconPath(entry.DisplayIcon);
 
-            if (uninstallExe != null && !File.Exists(uninstallExe))
+            // 关键：只有在"路径确实可达"的前提下，才能得出"已不存在"的结论。
+            // 外置硬盘未连接 / 网络盘断开 / 权限不足都会造成路径临时不可达。
+            if (uninstallExe != null && IsLocationVerifiable(uninstallExe) && !File.Exists(uninstallExe))
             {
                 list.Add(Make(entry.RegistryPath, "无效卸载项", entry.DisplayName!, uninstallExe, "卸载程序已不存在"));
                 continue;
             }
 
-            if (installDir != null && !Directory.Exists(installDir))
+            if (installDir != null && IsLocationVerifiable(installDir) && !Directory.Exists(installDir))
             {
                 list.Add(Make(entry.RegistryPath, "无效卸载项", entry.DisplayName!, installDir, "安装目录已不存在"));
                 continue;
@@ -106,6 +120,7 @@ public sealed class InvalidRegistryScanner : IRegistryCleaner
                 var imagePath = sub?.GetValue("ImagePath") as string;
                 var exe = CommandLinePathParser.ParseExecutablePath(imagePath);
                 if (exe == null) continue;                       // 驱动等非 exe 项跳过
+                if (!IsLocationVerifiable(exe)) continue;        // 目标盘当前不可达，无法判定
                 if (File.Exists(exe)) continue;
 
                 list.Add(Make($@"HKLM\{servicesKey}\{name}", "无效服务", name, exe, "服务可执行文件已不存在"));
@@ -166,7 +181,7 @@ public sealed class InvalidRegistryScanner : IRegistryCleaner
                     try
                     {
                         var exe = CommandLinePathParser.ParseExecutablePath(value);
-                        if (exe == null || File.Exists(exe)) continue;
+                        if (exe == null || !IsLocationVerifiable(exe) || File.Exists(exe)) continue;
 
                         list.Add(new RegistryIssue
                         {
@@ -225,7 +240,7 @@ public sealed class InvalidRegistryScanner : IRegistryCleaner
                         using var cmd = verbKey?.OpenSubKey("command");
                         var value = cmd?.GetValue(null) as string;
                         var exe = CommandLinePathParser.ParseExecutablePath(value);
-                        if (exe == null || File.Exists(exe)) continue;
+                        if (exe == null || !IsLocationVerifiable(exe) || File.Exists(exe)) continue;
 
                         list.Add(Make($@"HKLM\{appsKey}\{app}", "无效文件关联", app, exe, "关联的程序已不存在"));
                         break;
@@ -243,6 +258,20 @@ public sealed class InvalidRegistryScanner : IRegistryCleaner
         }
 
         return list;
+    }
+
+    /// <summary>
+    /// 该路径所在的位置当前是否可核验。
+    /// 盘符根不存在（外置硬盘未连接 / 网络盘断开）时返回 false —— 此时"文件不存在"不能作为无效证据。
+    /// </summary>
+    private static bool IsLocationVerifiable(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return false;
+
+        var root = PathUtils.GetDriveRoot(path);
+        if (root == null) return true;   // UNC 等路径：交给 File/Directory.Exists 判断
+
+        return Directory.Exists(root);
     }
 
     private static RegistryIssue Make(string registryPath, string category, string displayName, string? target, string reason)

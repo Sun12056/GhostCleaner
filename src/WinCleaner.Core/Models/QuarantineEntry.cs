@@ -29,6 +29,30 @@ public sealed class QuarantineEntry
 
     public string? Note { get; init; }
 
+    // ---------------- v0.1：可解释的隔离清单 ----------------
+
+    /// <summary>隔离原因（扫描器给出的判定依据摘要）。</summary>
+    public string? Reason { get; init; }
+
+    /// <summary>隔离时的疑似残留置信度。</summary>
+    public int ConfidenceScore { get; init; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public OrphanConfidenceLevel ConfidenceLevel { get; init; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public RiskLevel Risk { get; init; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public CleanupRecommendation Recommendation { get; init; }
+
+    /// <summary>隔离时的警告（例如扫描结果不完整）。</summary>
+    public IReadOnlyList<string> Warnings { get; init; } = Array.Empty<string>();
+
+    public string? ConfidenceText => ConfidenceScore > 0 || ConfidenceLevel != OrphanConfidenceLevel.Normal
+        ? $"{ConfidenceScore}%（{OrphanConfidenceThresholds.ToText(ConfidenceLevel)}）"
+        : null;
+
     public string SizeText => Utils.FileSizeFormatter.Format(SizeBytes);
 
     public string StatusText => Status switch

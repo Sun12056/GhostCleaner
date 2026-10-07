@@ -52,6 +52,28 @@ public sealed class NullToVisibilityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+/// <summary>疑似残留置信度等级 → 颜色（与风险颜色区分：这里表达"把握多大"）。</summary>
+public sealed class ConfidenceToBrushConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is OrphanConfidenceLevel level)
+        {
+            return level switch
+            {
+                OrphanConfidenceLevel.VeryHighProbability => (Brush)Application.Current.FindResource("Brush.RiskHigh"),
+                OrphanConfidenceLevel.HighProbability => (Brush)Application.Current.FindResource("Brush.RiskMedium"),
+                _ => (Brush)Application.Current.FindResource("Brush.RiskLow"),
+            };
+        }
+
+        return Brushes.Gray;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 /// <summary>bool → 是否可选（用于高风险/白名单行）。</summary>
 public sealed class InverseBoolConverter : IValueConverter
 {

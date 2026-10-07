@@ -1,129 +1,67 @@
+using WinCleaner.Core.Interfaces;
 using WinCleaner.Core.Models;
 using WinCleaner.Core.Utils;
 
 namespace WinCleaner.Scanner;
 
-/// <summary>风险评级与判定原因生成。规则保守：可疑即升级风险，宁可不删。</summary>
+/// <summary>
+/// 评估引擎总入口。
+///
+/// 流程：Candidate → Evidence Collection → Orphan Confidence → Cleanup Risk → Recommendation。
+///
+/// 关键原则（v0.1）：
+/// 1. <b>没有系统关联 ≠ 软件残留</b>：缺少关联只有在对应扫描源成功时才是证据；
+/// 2. <b>Confidence ≠ Risk</b>：前者是"多大把握认为它是残留"，后者是"清理它有多危险"；
+/// 3. <b>扫描失败绝不能被当成"没有引用"</b>，只会产生 Warning 并压低置信度；
+/// 4. Scanner 只输出 <see cref="CleanupRecommendation"/>，永远不输出"删除"。
+/// </summary>
 public static class RiskEvaluator
 {
-    /// <summary>
-    /// 评分规则：
-    /// - 高风险：路径命中系统/用户关键目录（Windows/System32/ProgramData/AppData/Users/Recovery/Boot/EFI/Drivers...），
-    ///           或位于系统盘且评分很高，或关联索引不可用时；
-    /// - 中风险：包含用户数据/配置/存档/数据库，或近期仍有修改，或缺少卸载程序；
-    /// - 低风险：非系统盘、像软件目录、有卸载器、无系统引用、无进程占用、最后修改较久。
-    /// </summary>
     public static OrphanItem Evaluate(
         SoftwareDirectoryInfo info,
         IReadOnlyList<AssociationHit> hits,
         ScanOptions options,
-        int associationIndexCount)
+        IReadOnlyList<AssociationSourceHealth> sourceHealth,
+        IEnumerable<IPathExclusionProvider>? exclusionProviders = null,
+        EvidenceWeights? weights = null)
     {
-        var reasons = new List<string>();
-        int score = 0;
+        var w = weights ?? EvidenceWeights.Default;
+        hits ??= Array.Empty<AssociationHit>();
+        sourceHealth ??= Array.Empty<AssociationSourceHealth>();
 
-        var criticalKeyword = PathUtils.GetCriticalKeyword(info.Path);
-        var systemDriveRoot = PathUtils.GetDriveRoot(Environment.GetFolderPath(Environment.SpecialFolder.System));
-        bool onSystemDrive = systemDriveRoot != null &&
-                             string.Equals(PathUtils.GetDriveRoot(info.Path), systemDriveRoot, StringComparison.OrdinalIgnoreCase);
+        // 1) 目录性质（绿色软件 / 游戏 / 开发项目 / 用户数据）
+        var facts = DirectoryFactsDetector.Detect(info);
 
-        bool isRunning = hits.Any(h => h.Source == AssociationSource.RunningProcess);
+        // 2) 收集证据
+        var collection = EvidenceCollector.Collect(info, facts, hits, sourceHealth, w);
 
-        // —— 高风险因子 ——
-        if (criticalKeyword != null)
-        {
-            score += 90;
-            reasons.Add($"路径包含系统/用户关键目录（{criticalKeyword}），禁止自动处理");
-        }
+        // 3) 置信度（与风险完全独立）
+        var confidenceScore = OrphanConfidenceEvaluator.Compute(collection, sourceHealth, w);
+        var confidenceLevel = OrphanConfidenceThresholds.FromScore(confidenceScore);
 
-        if (onSystemDrive)
-        {
-            score += 40;
-            reasons.Add("位于系统盘");
-        }
+        // 4) 清理风险
+        var risk = EvaluateCleanupRisk(info, facts, hits, sourceHealth, w);
 
-        if (info.HasReparsePoint)
+        // 5) 白名单 / 排除
+        var providers = BuildProviders(options, exclusionProviders);
+        string? excludeReason = null;
+        bool isExcluded = false;
+        foreach (var provider in providers)
         {
-            score += 15;
-            reasons.Add("包含符号链接/挂载点，可能指向其它位置");
-        }
-
-        if (associationIndexCount == 0)
-        {
-            score += 60;
-            reasons.Add("系统关联索引为空（可能采集失败），判定不可靠，必须人工确认");
-        }
-
-        if (isRunning)
-        {
-            score += 50;
-            reasons.Add("检测到有进程正在使用该目录");
-        }
-
-        // —— 中风险因子 ——
-        if (info.HasUserData)
-        {
-            score += 45;
-            var samples = info.UserDataSamples.Take(3).ToList();
-            reasons.Add("包含可能重要的用户数据/配置/存档：" + string.Join("、", samples));
-        }
-
-        var days = (DateTime.Now - info.LastModified).TotalDays;
-        if (days < 90)
-        {
-            // 近期仍有修改 —— 保守起见至少升级到中风险
-            score += 40;
-            reasons.Add($"最近 {(int)days} 天内有修改，可能仍在使用");
-        }
-        else if (days < 180)
-        {
-            score += 10;
-            reasons.Add($"最近 {(int)days} 天内有修改");
-        }
-        else
-        {
-            reasons.Add($"已 {(int)days} 天未修改");
-        }
-
-        if (!info.HasUninstaller)
-        {
-            score += 10;
-            reasons.Add("未发现卸载程序，无法通过标准卸载流程移除");
-        }
-        else
-        {
-            reasons.Add("存在卸载程序，建议优先使用其自身卸载程序");
-        }
-
-        // —— 系统引用情况 ——
-        if (hits.Count == 0)
-        {
-            reasons.Add("无任何系统引用（注册表卸载项 / App Paths / 快捷方式 / 服务 / 计划任务 / 进程 / 文件关联 / 启动项均未命中）");
-        }
-        else
-        {
-            foreach (var group in hits.GroupBy(h => h.Source))
+            if (provider.IsExcluded(info.Path, out var r))
             {
-                reasons.Add($"仍被{SourceText(group.Key)}引用：{string.Join("、", group.Take(2).Select(g => g.Name))}");
+                isExcluded = true;
+                excludeReason = r;
+                break;
             }
         }
 
-        // —— 白名单 ——
-        string? excludeReason = null;
-        var excludedPath = options.ExcludedPaths.FirstOrDefault(p => PathUtils.IsUnder(info.Path, p));
-        if (excludedPath != null) excludeReason = "命中排除路径：" + excludedPath;
+        // 6) 建议（永远不是"删除"）
+        bool isRunning = hits.Any(h => h.Source == AssociationSource.RunningProcess);
+        var recommendation = Recommend(confidenceLevel, risk.Level, facts, isExcluded, isRunning);
 
-        var keyword = options.KeepKeywords.FirstOrDefault(k => !string.IsNullOrWhiteSpace(k) && PathUtils.ContainsKeyword(info.Path, new[] { k }));
-        if (keyword != null) excludeReason = "命中保留关键词：" + keyword;
-
-        if (criticalKeyword != null) excludeReason ??= "系统关键目录，默认不参与删除";
-
-        // 关联索引为空说明采集失败，判定不可靠 —— 直接升级为高风险，要求人工确认
-        bool unreliable = associationIndexCount == 0;
-
-        var risk = criticalKeyword != null || unreliable || score >= 80 ? RiskLevel.High
-            : score >= 35 ? RiskLevel.Medium
-            : RiskLevel.Low;
+        // 7) 人类可读解释
+        var reasons = BuildReasons(collection, risk.Reasons);
 
         var displayName = !string.IsNullOrWhiteSpace(info.ProductName)
             ? info.ProductName!
@@ -145,32 +83,174 @@ public static class RiskEvaluator
             MainExecutables = info.ExecutablePaths,
             HasUninstaller = info.HasUninstaller,
             UninstallerPath = info.UninstallerPath,
-            HasUserData = info.HasUserData,
+            HasUserData = facts.HasUserData,
             UserDataSamples = info.UserDataSamples,
-            IsRunning = isRunning,
+            IsRunning = hits.Any(h => h.Source == AssociationSource.RunningProcess),
             SoftwareScore = info.SoftwareScore,
             IsLikelySoftwareDirectory = info.IsLikelySoftwareDirectory,
-            Risk = risk,
-            RiskScore = Math.Clamp(score, 0, 100),
+
+            ConfidenceScore = confidenceScore,
+            ConfidenceLevel = confidenceLevel,
+            Risk = risk.Level,
+            RiskScore = risk.Score,
+            Recommendation = recommendation,
+            Evidence = collection.Evidence,
+            Warnings = collection.Warnings,
+            IsProtected = facts.IsProtected,
+            ProtectionReason = facts.ProtectionReasons.Count == 0
+                ? null
+                : string.Join("、", facts.ProtectionReasons),
+            DirectoryCategory = facts.PrimaryCategory,
+
             Reasons = reasons,
             Associations = hits.ToList(),
-            IsExcluded = excludeReason != null,
+            IsExcluded = isExcluded,
             ExcludeReason = excludeReason,
         };
     }
 
-    public static string SourceText(AssociationSource source) => source switch
+    /// <summary>
+    /// 清理风险：回答"如果清理它，风险有多大"。
+    /// 注意与置信度无关 —— 一个很像残留的目录也可能因为包含用户数据而风险很高。
+    /// </summary>
+    public static CleanupRisk EvaluateCleanupRisk(
+        SoftwareDirectoryInfo info,
+        DirectoryFacts facts,
+        IReadOnlyList<AssociationHit> hits,
+        IReadOnlyList<AssociationSourceHealth> sourceHealth,
+        EvidenceWeights? weights = null)
     {
-        AssociationSource.RegistryUninstall => "注册表卸载项",
-        AssociationSource.AppPaths => "App Paths",
-        AssociationSource.StartMenuShortcut => "开始菜单快捷方式",
-        AssociationSource.DesktopShortcut => "桌面快捷方式",
-        AssociationSource.StartupEntry => "启动项",
-        AssociationSource.WindowsService => "Windows 服务",
-        AssociationSource.ScheduledTask => "计划任务",
-        AssociationSource.RunningProcess => "运行中的进程",
-        AssociationSource.AppxPackage => "Microsoft Store 应用",
-        AssociationSource.FileAssociation => "文件关联/右键菜单",
-        _ => "其它",
-    };
+        var w = weights ?? EvidenceWeights.Default;
+        var reasons = new List<string>();
+        int score = 0;
+
+        if (facts.IsCriticalPath)
+        {
+            score += w.RiskCriticalPath;
+            reasons.Add("路径位于系统/用户关键目录，禁止自动处理");
+        }
+
+        if (facts.IsOnSystemDrive)
+        {
+            score += w.RiskSystemDrive;
+            reasons.Add("位于系统盘");
+        }
+
+        if (info.HasReparsePoint)
+        {
+            score += w.RiskReparsePoint;
+            reasons.Add("包含符号链接/挂载点，可能指向其它位置");
+        }
+
+        if (hits.Any(h => h.Source == AssociationSource.RunningProcess))
+        {
+            score += w.RiskRunningProcess;
+            reasons.Add("检测到有进程正在使用该目录");
+        }
+
+        if (facts.HasUserData)
+        {
+            score += w.RiskUserData;
+            var samples = info.UserDataSamples.Take(3).ToList();
+            reasons.Add("包含可能重要的用户数据/配置/存档" + (samples.Count > 0 ? "：" + string.Join("、", samples) : string.Empty));
+        }
+
+        var days = (DateTime.Now - info.LastModified).TotalDays;
+        if (days < w.RiskRecentlyModifiedDays)
+        {
+            score += w.RiskRecentlyModified;
+            reasons.Add($"最近 {(int)days} 天内有修改，可能仍在使用");
+        }
+
+        if (!info.HasUninstaller)
+        {
+            score += w.RiskNoUninstaller;
+            reasons.Add("未发现卸载程序，无法通过标准卸载流程移除");
+        }
+        else
+        {
+            reasons.Add("存在卸载程序，建议优先使用其自身卸载程序");
+        }
+
+        if (facts.IsProtected)
+        {
+            score += w.RiskProtectedContent;
+            reasons.Add("受保护内容：" + string.Join("、", facts.ProtectionReasons));
+        }
+
+        if (OrphanConfidenceEvaluator.IsAssociationDataUnreliable(sourceHealth, out var unreliableReason))
+        {
+            score += w.RiskUnreliableAssociationData;
+            reasons.Add("关联检查不完整（" + unreliableReason + "），判定不可靠，必须人工确认");
+        }
+
+        var level = score >= w.RiskHighThreshold ? RiskLevel.High
+            : score >= w.RiskMediumThreshold ? RiskLevel.Medium
+            : RiskLevel.Low;
+
+        return new CleanupRisk(level, Math.Clamp(score, 0, 100), reasons);
+    }
+
+    /// <summary>生成建议。永远不会输出"删除"。</summary>
+    public static CleanupRecommendation Recommend(
+        OrphanConfidenceLevel confidenceLevel,
+        RiskLevel risk,
+        DirectoryFacts facts,
+        bool isExcluded,
+        bool isRunning = false)
+    {
+        if (isExcluded || facts.IsCriticalPath) return CleanupRecommendation.Keep;
+        if (risk == RiskLevel.High) return CleanupRecommendation.HighRiskReview;
+        if (isRunning) return CleanupRecommendation.HighRiskReview;   // 正在被使用，绝不建议处理
+        if (facts.IsProtected) return CleanupRecommendation.Review;
+
+        return confidenceLevel switch
+        {
+            OrphanConfidenceLevel.VeryHighProbability when risk == RiskLevel.Low => CleanupRecommendation.Quarantine,
+            OrphanConfidenceLevel.VeryHighProbability => CleanupRecommendation.Review,
+            OrphanConfidenceLevel.HighProbability => CleanupRecommendation.Review,
+            OrphanConfidenceLevel.Suspicious => CleanupRecommendation.Review,
+            _ => CleanupRecommendation.Keep,
+        };
+    }
+
+    private static List<IPathExclusionProvider> BuildProviders(
+        ScanOptions options,
+        IEnumerable<IPathExclusionProvider>? extra)
+    {
+        var providers = new List<IPathExclusionProvider>
+        {
+            new SystemProtectedPathProvider(),
+            new OptionsExclusionProvider(options),
+            new DefaultWhitelistProvider(),
+        };
+
+        if (extra != null) providers.AddRange(extra);
+
+        return providers;
+    }
+
+    private static List<string> BuildReasons(EvidenceCollection collection, IReadOnlyList<string> riskReasons)
+    {
+        var reasons = new List<string>();
+
+        foreach (var e in collection.Evidence.Where(x => x.IsPositive).OrderByDescending(x => x.Score))
+            reasons.Add($"疑似残留依据：{e.Title}（{e.ScoreText}）—— {e.Description}");
+
+        foreach (var e in collection.Evidence.Where(x => !x.IsPositive).OrderBy(x => x.Score))
+            reasons.Add($"保护/否定依据：{e.Title}（{e.ScoreText}）—— {e.Description}");
+
+        foreach (var warning in collection.Warnings)
+            reasons.Add("⚠ " + warning);
+
+        foreach (var r in riskReasons)
+            if (!reasons.Contains(r)) reasons.Add(r);
+
+        return reasons;
+    }
+
+    public static string SourceText(AssociationSource source) => AssociationSourceText.ToText(source);
 }
+
+/// <summary>清理风险评估结果（与置信度分离）。</summary>
+public sealed record CleanupRisk(RiskLevel Level, int Score, IReadOnlyList<string> Reasons);

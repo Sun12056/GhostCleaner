@@ -1,4 +1,5 @@
 using System.Text;
+using WinCleaner.Core.Interfaces;
 using WinCleaner.Core.Models;
 using WinCleaner.Registry;
 using WinCleaner.Scanner;
@@ -34,19 +35,22 @@ public class OrphanScannerIntegrationTests : IDisposable
         Directory.CreateDirectory(appDir);
         Directory.CreateDirectory(System.IO.Path.Combine(appDir, "resources"));
 
-        WriteFile(System.IO.Path.Combine(appDir, "AbandonedTool.exe"), 4096);
-        WriteFile(System.IO.Path.Combine(appDir, "core.dll"), 2048);
-        WriteFile(System.IO.Path.Combine(appDir, "unins000.exe"), 1024);
-        WriteFile(System.IO.Path.Combine(appDir, "resources", "icon.png"), 512);
+        var oldTime = DateTime.Now.AddYears(-2);
 
-        Directory.SetLastWriteTime(appDir, DateTime.Now.AddYears(-2));
+        WriteFile(System.IO.Path.Combine(appDir, "AbandonedTool.exe"), 4096, oldTime);
+        WriteFile(System.IO.Path.Combine(appDir, "core.dll"), 2048, oldTime);
+        WriteFile(System.IO.Path.Combine(appDir, "unins000.exe"), 1024, oldTime);
+        WriteFile(System.IO.Path.Combine(appDir, "resources", "icon.png"), 512, oldTime);
+
+        Directory.SetLastWriteTime(appDir, oldTime);
 
         // 构造一个"不像软件"的目录：只有文档
         var docsDir = System.IO.Path.Combine(_root, "MyDocuments");
         Directory.CreateDirectory(docsDir);
         WriteFile(System.IO.Path.Combine(docsDir, "notes.txt"), 128);
 
-        var scanner = new OrphanScanner(new SoftwareDirectoryInspector(), new AssociationIndex());
+        // 使用替身索引：不依赖真实机器状态，保证断言可重复
+        var scanner = new OrphanScanner(new SoftwareDirectoryInspector(), new StubAssociationIndex());
 
         var options = new ScanOptions
         {
@@ -61,11 +65,37 @@ public class OrphanScannerIntegrationTests : IDisposable
         var found = items.First(i => i.Path.Equals(appDir, StringComparison.OrdinalIgnoreCase));
         Assert.True(found.HasUninstaller);
         Assert.NotEmpty(found.Reasons);
-        Assert.Contains(found.Reasons, r => r.Contains("无任何系统引用") || r.Contains("仍被"));
+        Assert.NotEmpty(found.Evidence);
+        Assert.Contains(found.Evidence, e => e.Type == EvidenceType.Uninstaller);
+        Assert.True(found.ConfidenceScore > 0);
         Assert.NotEqual(RiskLevel.High, found.Risk); // 非系统盘、非关键目录，不应是高风险
+        Assert.NotEqual(CleanupRecommendation.Keep, found.Recommendation);
 
         // 纯文档目录不应被识别为软件残留
         Assert.DoesNotContain(items, i => i.Path.Equals(docsDir, StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task ScanAsync_SurfacesSourceHealthWarnings()
+    {
+        var appDir = System.IO.Path.Combine(_root, "AbandonedTool");
+        Directory.CreateDirectory(appDir);
+        WriteFile(System.IO.Path.Combine(appDir, "AbandonedTool.exe"), 4096, DateTime.Now.AddYears(-2));
+        WriteFile(System.IO.Path.Combine(appDir, "unins000.exe"), 1024, DateTime.Now.AddYears(-2));
+
+        // 用一个"注册表采集失败"的索引，验证失败不会被当成"没有引用"
+        var index = new StubAssociationIndex(s => s == AssociationSource.RegistryUninstall
+            ? AssociationSourceStatus.Failed
+            : AssociationSourceStatus.Success);
+        var scanner = new OrphanScanner(new SoftwareDirectoryInspector(), index);
+
+        var items = await scanner.ScanAsync(new ScanOptions { RootPaths = new[] { _root }, MaxDepth = 1 });
+        var found = items.FirstOrDefault(i => i.Path.Equals(appDir, StringComparison.OrdinalIgnoreCase));
+
+        Assert.NotNull(found);
+        Assert.Contains(found!.Warnings, w => w.Contains("注册表卸载项检查未完成"));
+        Assert.DoesNotContain(found.Evidence, e => e.Type == EvidenceType.MissingUninstallEntry);
+        Assert.Contains(index.SourceHealth, h => h.Status == AssociationSourceStatus.Failed);
     }
 
     [Fact]
@@ -102,9 +132,10 @@ public class OrphanScannerIntegrationTests : IDisposable
             () => scanner.ScanAsync(new ScanOptions { RootPaths = new[] { _root } }, null, cts.Token));
     }
 
-    private static void WriteFile(string path, int size)
+    private static void WriteFile(string path, int size, DateTime? lastWriteTime = null)
     {
         Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
         File.WriteAllText(path, new string('x', size), Encoding.ASCII);
+        if (lastWriteTime.HasValue) File.SetLastWriteTime(path, lastWriteTime.Value);
     }
 }

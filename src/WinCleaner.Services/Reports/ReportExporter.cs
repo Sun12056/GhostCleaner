@@ -21,7 +21,8 @@ public sealed class ReportExporter : IReportExporter
         {
             var lines = new List<string>
             {
-                Csv("路径", "推测软件名", "版本", "厂商", "总大小", "大小(字节)", "文件数", "最后修改", "主要exe", "有卸载程序", "风险", "判定原因", "是否排除", "排除原因", "用户数据"),
+                Csv("路径", "推测软件名", "版本", "厂商", "总大小", "大小(字节)", "文件数", "最后修改", "主要exe", "有卸载程序",
+                    "疑似残留度", "置信等级", "风险", "建议", "目录性质", "是否受保护", "判定原因", "是否排除", "排除原因", "用户数据", "警告"),
             };
 
             foreach (var item in list)
@@ -37,11 +38,17 @@ public sealed class ReportExporter : IReportExporter
                     item.LastModifiedText,
                     string.Join(" | ", item.MainExecutables),
                     item.HasUninstaller ? "是" : "否",
+                    item.ConfidenceText,
+                    item.ConfidenceLevelText,
                     item.RiskText,
+                    item.RecommendationText,
+                    item.CategoryText,
+                    item.IsProtected ? "是" : "否",
                     item.ReasonText,
                     item.IsExcluded ? "是" : "否",
                     item.ExcludeReason ?? "",
-                    item.HasUserData ? "是" : "否"));
+                    item.HasUserData ? "是" : "否",
+                    string.Join(" | ", item.Warnings)));
             }
 
             await File.WriteAllLinesAsync(filePath, lines, new UTF8Encoding(true), cancellationToken).ConfigureAwait(false);
@@ -69,6 +76,25 @@ public sealed class ReportExporter : IReportExporter
                 x.UninstallerPath,
                 Risk = x.RiskText,
                 x.RiskScore,
+
+                // v0.1：可解释性
+                x.ConfidenceScore,
+                ConfidenceLevel = x.ConfidenceLevelText,
+                Recommendation = x.RecommendationText,
+                DirectoryCategory = x.CategoryText,
+                x.IsProtected,
+                x.ProtectionReason,
+                Evidence = x.Evidence.Select(e => new
+                {
+                    Type = e.Type.ToString(),
+                    e.Title,
+                    e.Description,
+                    e.Score,
+                    e.IsPositive,
+                    Severity = e.Severity.ToString(),
+                }),
+                Warnings = x.Warnings,
+
                 Reasons = x.Reasons,
                 x.HasUserData,
                 UserDataSamples = x.UserDataSamples,

@@ -13,7 +13,8 @@ public interface IQuarantineManager
         string sourcePath,
         string? displayName = null,
         IProgress<string>? progress = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        QuarantineContext? context = null);
 
     Task<bool> RestoreAsync(string entryId, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
 
