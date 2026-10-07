@@ -39,7 +39,7 @@
 ## 2. 项目目录结构
 
 ```
-D:\WinCleaner\
+D:\文档\GitHub\GhostCleaner\
 ├── WinCleaner.sln
 ├── README.md
 ├── build.ps1                        # 一键编译/测试脚本（使用 D:\DevTools\dotnet）
@@ -185,14 +185,14 @@ D:\WinCleaner\
 
 ```powershell
 # 一键编译 + 单元测试（脚本已内置 dotnet 路径与环境变量）
-cd D:\WinCleaner
+cd D:\文档\GitHub\GhostCleaner
 .\build.ps1
 
 # 或手动
 $env:Path = "D:\DevTools\dotnet;$env:Path"
-dotnet build D:\WinCleaner\WinCleaner.sln
-dotnet test  D:\WinCleaner\WinCleaner.sln
-dotnet run --project D:\WinCleaner\src\WinCleaner.App\WinCleaner.App.csproj
+dotnet build D:\文档\GitHub\GhostCleaner\WinCleaner.sln
+dotnet test  D:\文档\GitHub\GhostCleaner\WinCleaner.sln
+dotnet run --project D:\文档\GitHub\GhostCleaner\src\WinCleaner.App\WinCleaner.App.csproj
 ```
 
 > 程序清单声明了 `requireAdministrator`，启动时 Windows 会弹出 UAC；**请务必用管理员身份运行**，否则注册表、服务、计划任务等读取不完整（程序会在扫描前给出警告，并因索引不完整而把结果标为高风险、要求人工确认）。

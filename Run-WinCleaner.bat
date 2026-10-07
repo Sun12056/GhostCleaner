@@ -1,2 +1,2 @@
 @echo off
-start "" "D:\WinCleaner\app2\WinCleaner.App.exe"
+start "" "D:\??\GitHub\GhostCleaner\app\WinCleaner.App.exe"
