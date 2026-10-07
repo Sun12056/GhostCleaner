@@ -1,0 +1,64 @@
+<UserControl x:Class="WinCleaner.App.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource PageTitle}" Text="仪表盘" />
+                <TextBlock Style="{StaticResource HintText}" Text="{Binding AdminText}" />
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Button Content="开始孤儿软件扫描" Style="{StaticResource PrimaryButton}" Command="{Binding GoToScanCommand}" />
+                    <Button Content="打开隔离区" Style="{StaticResource BaseButton}" Command="{Binding GoToQuarantineCommand}" />
+                    <Button Content="打开设置" Style="{StaticResource BaseButton}" Command="{Binding GoToSettingsCommand}" />
+                    <Button Content="刷新" Style="{StaticResource BaseButton}" Command="{Binding RefreshCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource SectionTitle}" Text="磁盘空间" Margin="0,0,0,8" />
+                <ItemsControl ItemsSource="{Binding Drives}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,6">
+                                <TextBlock Text="{Binding Summary}" FontSize="13" />
+                                <ProgressBar Height="8" Margin="0,4,120,0" Value="{Binding UsedPercent}" Maximum="100" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource SectionTitle}" Text="隔离区" Margin="0,0,0,6" />
+                <TextBlock Text="{Binding QuarantineSummary}" Style="{StaticResource HintText}" />
+                <TextBlock Text="{Binding QuarantineRootText}" Style="{StaticResource HintText}" Margin="0,4,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource SectionTitle}" Text="最近操作日志" Margin="0,0,0,6" />
+                <TextBlock Text="{Binding ScanHint}" Style="{StaticResource HintText}" Margin="0,0,0,8" />
+                <ItemsControl ItemsSource="{Binding RecentLogs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock FontSize="12" Margin="0,2" TextWrapping="Wrap">
+                                <Run Text="{Binding TimestampText, Mode=OneWay}" />
+                                <Run Text="  " />
+                                <Run Text="{Binding Category, Mode=OneWay}" />
+                                <Run Text="/" />
+                                <Run Text="{Binding Action, Mode=OneWay}" />
+                                <Run Text="  " />
+                                <Run Text="{Binding Message, Mode=OneWay}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,47 @@
+<UserControl x:Class="WinCleaner.App.Views.RegistryIssuesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource PageTitle}" Text="启动项 / 无效注册表项" />
+                <TextBlock Style="{StaticResource HintText}" Text="{Binding StatusText}" />
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Button Content="扫描无效项" Style="{StaticResource PrimaryButton}" Command="{Binding ScanCommand}" />
+                    <Button Content="仅备份所选项" Style="{StaticResource BaseButton}" Command="{Binding BackupSelectedCommand}" />
+                    <Button Content="删除所选项" Style="{StaticResource DangerButton}" Command="{Binding DeleteSelectedCommand}" />
+                    <TextBlock VerticalAlignment="Center" Margin="12,0,0,0" FontWeight="SemiBold">
+                        <Run Text="已勾选 " />
+                        <Run Text="{Binding SelectedCount, Mode=OneWay}" />
+                        <Run Text=" 项" />
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+            <DataGrid ItemsSource="{Binding Issues}" MaxHeight="560" VerticalScrollBarVisibility="Auto">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="46" Header="选择">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Center" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="类型" Binding="{Binding Category}" Width="120" />
+                    <DataGridTextColumn Header="名称" Binding="{Binding DisplayName}" Width="220" />
+                    <DataGridTextColumn Header="无效原因" Binding="{Binding Reason}" Width="180" />
+                    <DataGridTextColumn Header="目标路径" Binding="{Binding TargetPath}" Width="360" />
+                    <DataGridTextColumn Header="注册表项" Binding="{Binding KeyPath}" Width="360" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock Margin="0,10,0,0" Style="{StaticResource HintText}"
+                       Text="安全说明：删除前会自动用 reg export 把每一项导出为 .reg 备份文件（数据目录 Backups\RegistryBackup）。删除需要输入确认文字，请谨慎操作。" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

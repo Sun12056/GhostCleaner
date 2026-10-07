@@ -1,0 +1,35 @@
+## 编译产物
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+
+## 发布输出（自包含单文件约 68MB，不放仓库）
+app/
+app2/
+publish/
+
+## 运行时数据（设置/日志/隔离区/备份）
+Data/
+Backups/
+Logs/
+
+## 截图与临时文件
+*.png
+*.lnk
+startup-trace.txt
+
+## IDE / 系统
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+Thumbs.db
+desktop.ini
+
+## 测试输出
+TestResults/
+coverage*.xml
+*.trx

@@ -1,0 +1,100 @@
+﻿<Window x:Class="WinCleaner.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:WinCleaner.App.ViewModels"
+        xmlns:views="clr-namespace:WinCleaner.App.Views"
+        Title="WinCleaner — Windows 清理优化工具"
+        Width="1340" Height="880" MinWidth="1120" MinHeight="700"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Brush.WindowBackground}">
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:OrphanScanViewModel}">
+            <views:OrphanScanView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:GeneralCleanViewModel}">
+            <views:GeneralCleanView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DiskAnalysisViewModel}">
+            <views:DiskAnalysisView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:RegistryIssuesViewModel}">
+            <views:RegistryIssuesView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:QuarantineViewModel}">
+            <views:QuarantineView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:LogViewModel}">
+            <views:LogView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="216" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- 左侧导航 -->
+        <Border Grid.Column="0" Background="{StaticResource Brush.SidebarBackground}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Margin="16,18,16,14">
+                    <TextBlock Text="WinCleaner" Foreground="White" FontSize="19" FontWeight="Bold" />
+                    <TextBlock Text="孤儿软件残留清理工具" Foreground="#9CA3AF" FontSize="11" Margin="0,4,0,0" />
+                </StackPanel>
+
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding NavItems}"
+                         SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                         DisplayMemberPath="Name"
+                         Style="{StaticResource NavListBox}"
+                         ItemContainerStyle="{StaticResource NavItemContainer}"
+                         Margin="6,0" />
+
+                <Border Grid.Row="2" Padding="14,12" BorderBrush="#374151" BorderThickness="0,1,0,0">
+                    <TextBlock Text="{Binding AdminText}"
+                               Foreground="#9CA3AF"
+                               FontSize="11"
+                               TextWrapping="Wrap" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 右侧内容 -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Background="White"
+                    BorderBrush="{StaticResource Brush.Border}"
+                    BorderThickness="0,0,0,1"
+                    Padding="20,14">
+                <TextBlock Text="{Binding SelectedItem.Name}"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource Brush.TextPrimary}" />
+            </Border>
+
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Padding="16">
+                <ContentControl Content="{Binding CurrentView}" />
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A7E0AB49-1568-45FA-884F-6F608B095485}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinCleaner.Core", "src\WinCleaner.Core\WinCleaner.Core.csproj", "{5039A1A5-C4CD-4760-A689-C9EEBAD01BBD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinCleaner.Registry", "src\WinCleaner.Registry\WinCleaner.Registry.csproj", "{3BE5EB98-39F0-482F-B7C6-336DA46C2723}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinCleaner.Scanner", "src\WinCleaner.Scanner\WinCleaner.Scanner.csproj", "{10A1C6BE-C94D-47E6-BB1B-8FAA350B9D4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinCleaner.Services", "src\WinCleaner.Services\WinCleaner.Services.csproj", "{FFECA408-55F4-41EC-891F-9DF80BE11312}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinCleaner.App", "src\WinCleaner.App\WinCleaner.App.csproj", "{EE5ABEF1-F68E-4A2F-AA40-61536EA8B361}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{07D7740F-F44B-49EC-82AE-D1FF1230A6CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinCleaner.Tests", "tests\WinCleaner.Tests\WinCleaner.Tests.csproj", "{363988DE-BC9B-4BD1-83E2-385544EFB4B1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5039A1A5-C4CD-4760-A689-C9EEBAD01BBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5039A1A5-C4CD-4760-A689-C9EEBAD01BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5039A1A5-C4CD-4760-A689-C9EEBAD01BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5039A1A5-C4CD-4760-A689-C9EEBAD01BBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BE5EB98-39F0-482F-B7C6-336DA46C2723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BE5EB98-39F0-482F-B7C6-336DA46C2723}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BE5EB98-39F0-482F-B7C6-336DA46C2723}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BE5EB98-39F0-482F-B7C6-336DA46C2723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A1C6BE-C94D-47E6-BB1B-8FAA350B9D4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A1C6BE-C94D-47E6-BB1B-8FAA350B9D4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A1C6BE-C94D-47E6-BB1B-8FAA350B9D4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A1C6BE-C94D-47E6-BB1B-8FAA350B9D4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFECA408-55F4-41EC-891F-9DF80BE11312}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFECA408-55F4-41EC-891F-9DF80BE11312}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFECA408-55F4-41EC-891F-9DF80BE11312}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFECA408-55F4-41EC-891F-9DF80BE11312}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE5ABEF1-F68E-4A2F-AA40-61536EA8B361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE5ABEF1-F68E-4A2F-AA40-61536EA8B361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE5ABEF1-F68E-4A2F-AA40-61536EA8B361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE5ABEF1-F68E-4A2F-AA40-61536EA8B361}.Release|Any CPU.Build.0 = Release|Any CPU
+		{363988DE-BC9B-4BD1-83E2-385544EFB4B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{363988DE-BC9B-4BD1-83E2-385544EFB4B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{363988DE-BC9B-4BD1-83E2-385544EFB4B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{363988DE-BC9B-4BD1-83E2-385544EFB4B1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5039A1A5-C4CD-4760-A689-C9EEBAD01BBD} = {A7E0AB49-1568-45FA-884F-6F608B095485}
+		{3BE5EB98-39F0-482F-B7C6-336DA46C2723} = {A7E0AB49-1568-45FA-884F-6F608B095485}
+		{10A1C6BE-C94D-47E6-BB1B-8FAA350B9D4D} = {A7E0AB49-1568-45FA-884F-6F608B095485}
+		{FFECA408-55F4-41EC-891F-9DF80BE11312} = {A7E0AB49-1568-45FA-884F-6F608B095485}
+		{EE5ABEF1-F68E-4A2F-AA40-61536EA8B361} = {A7E0AB49-1568-45FA-884F-6F608B095485}
+		{363988DE-BC9B-4BD1-83E2-385544EFB4B1} = {07D7740F-F44B-49EC-82AE-D1FF1230A6CC}
+	EndGlobalSection
+EndGlobal
