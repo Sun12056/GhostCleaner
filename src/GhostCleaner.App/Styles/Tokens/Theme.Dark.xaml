@@ -1,0 +1,123 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================
+         GhostCleaner Theme — Dark
+         键名与 Theme.Light.xaml 完全一致，由 ThemeService 整本替换。
+         注意：这不是反色 —— 强调色更亮、按钮文字转深、阴影转纯黑、
+               边框转"比表面更亮的线"。
+         ============================================================ -->
+
+    <!-- ========== 中性灰阶（由深到浅） ========== -->
+    <Color x:Key="Color.N.0">#000000</Color>
+    <Color x:Key="Color.N.50">#101318</Color>
+    <Color x:Key="Color.N.75">#0C0F13</Color>
+    <Color x:Key="Color.N.100">#14171D</Color>
+    <Color x:Key="Color.N.150">#181C23</Color>
+    <Color x:Key="Color.N.200">#1F242C</Color>
+    <Color x:Key="Color.N.300">#30363F</Color>
+    <Color x:Key="Color.N.400">#464E59</Color>
+    <Color x:Key="Color.N.500">#6E7784</Color>
+    <Color x:Key="Color.N.600">#A2AAB8</Color>
+    <Color x:Key="Color.N.800">#DDE2EA</Color>
+    <Color x:Key="Color.N.900">#E7EAEF</Color>
+
+    <!-- ========== 强调色（深底需要更高明度） ========== -->
+    <Color x:Key="Color.Accent.50">#171E33</Color>
+    <Color x:Key="Color.Accent.100">#1B2540</Color>
+    <Color x:Key="Color.Accent.200">#24305A</Color>
+    <Color x:Key="Color.Accent.400">#5B77E0</Color>
+    <Color x:Key="Color.Accent.500">#6C86EA</Color>
+    <Color x:Key="Color.Accent.600">#8AA0F2</Color>
+    <Color x:Key="Color.Accent.700">#A5B6F7</Color>
+
+    <!-- ========== 语义色 ========== -->
+    <Color x:Key="Color.Success.Bg">#14231B</Color>
+    <Color x:Key="Color.Success.Border">#24462F</Color>
+    <Color x:Key="Color.Success.Default">#3CA46B</Color>
+    <Color x:Key="Color.Success.Fg">#6FD09B</Color>
+
+    <Color x:Key="Color.Warning.Bg">#2A2114</Color>
+    <Color x:Key="Color.Warning.Border">#4E3C1E</Color>
+    <Color x:Key="Color.Warning.Default">#D6912C</Color>
+    <Color x:Key="Color.Warning.Fg">#E9B571</Color>
+
+    <Color x:Key="Color.Danger.Bg">#2C1917</Color>
+    <Color x:Key="Color.Danger.Border">#552825</Color>
+    <Color x:Key="Color.Danger.Default">#E0524A</Color>
+    <Color x:Key="Color.Danger.Hover">#C7413A</Color>
+    <Color x:Key="Color.Danger.Fg">#F08A84</Color>
+
+    <!-- ========== 疑似残留度 ========== -->
+    <Color x:Key="Color.Conf.VHP">#6C86EA</Color>
+    <Color x:Key="Color.Conf.HP">#5B77E0</Color>
+    <Color x:Key="Color.Conf.Sus">#33437A</Color>
+    <Color x:Key="Color.Conf.Norm">#30363F</Color>
+    <Color x:Key="Color.Conf.Track">#1F242C</Color>
+    <Color x:Key="Color.Conf.Fg">#9DB0F5</Color>
+
+    <!-- ============================================================
+         语义 Brush（键名与 Light 完全一致）
+         ============================================================ -->
+
+    <SolidColorBrush x:Key="Brush.Bg.Canvas" Color="{StaticResource Color.N.50}" />
+    <SolidColorBrush x:Key="Brush.Bg.Sidebar" Color="{StaticResource Color.N.75}" />
+    <SolidColorBrush x:Key="Brush.Bg.Surface" Color="{StaticResource Color.N.150}" />
+    <SolidColorBrush x:Key="Brush.Bg.Sunken" Color="{StaticResource Color.N.100}" />
+    <SolidColorBrush x:Key="Brush.Bg.Hover" Color="{StaticResource Color.N.200}" />
+    <SolidColorBrush x:Key="Brush.Bg.Active" Color="{StaticResource Color.Accent.50}" />
+    <SolidColorBrush x:Key="Brush.Bg.Scrim" Color="#99000000" />
+
+    <SolidColorBrush x:Key="Brush.Border.Subtle" Color="{StaticResource Color.N.200}" />
+    <SolidColorBrush x:Key="Brush.Border.Default" Color="{StaticResource Color.N.300}" />
+    <SolidColorBrush x:Key="Brush.Border.Strong" Color="{StaticResource Color.N.400}" />
+    <SolidColorBrush x:Key="Brush.Border.Focus" Color="{StaticResource Color.Accent.500}" />
+
+    <SolidColorBrush x:Key="Brush.Text.Primary" Color="{StaticResource Color.N.900}" />
+    <SolidColorBrush x:Key="Brush.Text.Secondary" Color="{StaticResource Color.N.600}" />
+    <SolidColorBrush x:Key="Brush.Text.Tertiary" Color="{StaticResource Color.N.500}" />
+    <SolidColorBrush x:Key="Brush.Text.Disabled" Color="{StaticResource Color.N.400}" />
+    <SolidColorBrush x:Key="Brush.Text.Link" Color="{StaticResource Color.Accent.600}" />
+    <!-- 深底上亮按钮配深文字：对比度 6.2:1（配白字仅 2.6:1） -->
+    <SolidColorBrush x:Key="Brush.Text.OnAccent" Color="#0E1116" />
+
+    <SolidColorBrush x:Key="Brush.Accent" Color="{StaticResource Color.Accent.500}" />
+    <SolidColorBrush x:Key="Brush.Accent.Hover" Color="{StaticResource Color.Accent.600}" />
+    <SolidColorBrush x:Key="Brush.Accent.Pressed" Color="{StaticResource Color.Accent.700}" />
+    <SolidColorBrush x:Key="Brush.Accent.Bg" Color="{StaticResource Color.Accent.50}" />
+    <SolidColorBrush x:Key="Brush.Accent.BgHover" Color="{StaticResource Color.Accent.100}" />
+    <SolidColorBrush x:Key="Brush.Accent.Border" Color="{StaticResource Color.Accent.200}" />
+    <SolidColorBrush x:Key="Brush.Accent.Fg" Color="{StaticResource Color.Accent.600}" />
+
+    <SolidColorBrush x:Key="Brush.Success.Bg" Color="{StaticResource Color.Success.Bg}" />
+    <SolidColorBrush x:Key="Brush.Success.Border" Color="{StaticResource Color.Success.Border}" />
+    <SolidColorBrush x:Key="Brush.Success" Color="{StaticResource Color.Success.Default}" />
+    <SolidColorBrush x:Key="Brush.Success.Fg" Color="{StaticResource Color.Success.Fg}" />
+
+    <SolidColorBrush x:Key="Brush.Warning.Bg" Color="{StaticResource Color.Warning.Bg}" />
+    <SolidColorBrush x:Key="Brush.Warning.Border" Color="{StaticResource Color.Warning.Border}" />
+    <SolidColorBrush x:Key="Brush.Warning" Color="{StaticResource Color.Warning.Default}" />
+    <SolidColorBrush x:Key="Brush.Warning.Fg" Color="{StaticResource Color.Warning.Fg}" />
+
+    <SolidColorBrush x:Key="Brush.Danger.Bg" Color="{StaticResource Color.Danger.Bg}" />
+    <SolidColorBrush x:Key="Brush.Danger.Border" Color="{StaticResource Color.Danger.Border}" />
+    <SolidColorBrush x:Key="Brush.Danger" Color="{StaticResource Color.Danger.Default}" />
+    <SolidColorBrush x:Key="Brush.Danger.Hover" Color="{StaticResource Color.Danger.Hover}" />
+    <SolidColorBrush x:Key="Brush.Danger.Fg" Color="{StaticResource Color.Danger.Fg}" />
+
+    <SolidColorBrush x:Key="Brush.Confidence.VHP" Color="{StaticResource Color.Conf.VHP}" />
+    <SolidColorBrush x:Key="Brush.Confidence.HP" Color="{StaticResource Color.Conf.HP}" />
+    <SolidColorBrush x:Key="Brush.Confidence.Sus" Color="{StaticResource Color.Conf.Sus}" />
+    <SolidColorBrush x:Key="Brush.Confidence.Norm" Color="{StaticResource Color.Conf.Norm}" />
+    <SolidColorBrush x:Key="Brush.Confidence.Track" Color="{StaticResource Color.Conf.Track}" />
+    <SolidColorBrush x:Key="Brush.Confidence.Fg" Color="{StaticResource Color.Conf.Fg}" />
+
+    <!-- 深色下阴影用纯黑并提高不透明度 -->
+    <Color x:Key="Color.Shadow">#000000</Color>
+    <DropShadowEffect x:Key="Shadow.Elevation1" Color="{StaticResource Color.Shadow}" Opacity="0.50" BlurRadius="12" ShadowDepth="1" Direction="270" />
+    <DropShadowEffect x:Key="Shadow.Elevation2" Color="{StaticResource Color.Shadow}" Opacity="0.65" BlurRadius="40" ShadowDepth="2" Direction="270" />
+
+    <SolidColorBrush x:Key="Brush.TitleButton.Hover" Color="{StaticResource Color.N.200}" />
+    <SolidColorBrush x:Key="Brush.TitleButton.CloseHover" Color="{StaticResource Color.Danger.Default}" />
+
+</ResourceDictionary>

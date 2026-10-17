@@ -1,0 +1,135 @@
+<UserControl x:Class="GhostCleaner.App.Views.LogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:GhostCleaner.App.Converters"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <conv:LogLevelConverter x:Key="LevelConv" />
+        <conv:FileSizeConverter x:Key="SizeFormatter" />
+        <conv:IntToVisibilityConverter x:Key="IntToVisibility" />
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <!-- 页面标题 -->
+        <Grid Margin="0,0,0,24">
+            <StackPanel>
+                <TextBlock Text="扫描记录" Style="{StaticResource GcPageTitle}" />
+                <TextBlock Text="回看过去的每一次扫描结论，以及每一次处理操作。"
+                           Style="{StaticResource GcPageSub}" Margin="0,4,0,0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource GcButton.SM}" Margin="0,0,8,0"
+                        Content="重新加载" Command="{Binding LoadCommand}" />
+                <Button Style="{StaticResource GcButton.Subtle.SM}"
+                        Content="导出日志" Command="{Binding ExportCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- 降级说明：UDR-02 未落地 -->
+        <Border Style="{StaticResource GcBanner.Info}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform" Margin="0,2,12,0"
+                      VerticalAlignment="Top"
+                      Data="{StaticResource Icon.Info}"
+                      Fill="Transparent"
+                      Stroke="{DynamicResource Brush.Accent.Fg}"
+                      StrokeThickness="1.75"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="当前展示的是操作日志" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{DynamicResource Brush.Accent.Fg}" />
+                    <TextBlock Text="Core 尚未提供扫描结果持久化（UDR-02 IScanHistoryService），因此无法回看历史扫描的条目列表。该能力落地后，此处会切换为「扫描记录 / 操作日志」双分段视图。"
+                               FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"
+                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 日志表 -->
+        <Border Style="{StaticResource GcCard.Flush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="16,12">
+                    <TextBlock Text="操作日志" Style="{StaticResource GcH3}" VerticalAlignment="Center" />
+                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center"
+                               Style="{StaticResource GcCaption}">
+                        <Run Text="共 " />
+                        <Run Text="{Binding EntryCount, Mode=OneWay}" />
+                        <Run Text=" 条" />
+                    </TextBlock>
+                </Grid>
+
+                <Separator Grid.Row="0" VerticalAlignment="Bottom" Style="{StaticResource GcSeparator}" />
+
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding EntriesView}"
+                          MaxHeight="560"
+                          Style="{StaticResource GcDataGrid}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="时间" Width="170"
+                                            Binding="{Binding Timestamp, StringFormat=yyyy-MM-dd HH:mm:ss}"
+                                            ElementStyle="{StaticResource GcCellNumber}" />
+
+                        <DataGridTemplateColumn Header="级别" Width="90">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Level, Converter={StaticResource LevelConv}, ConverterParameter=text}"
+                                               Foreground="{Binding Level, Converter={StaticResource LevelConv}, ConverterParameter=fg}"
+                                               FontSize="12" VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="分类" Width="110" Binding="{Binding Category}" />
+                        <DataGridTextColumn Header="操作" Width="130" Binding="{Binding Action}" />
+                        <DataGridTextColumn Header="说明" Width="*" Binding="{Binding Message}" />
+                        <DataGridTextColumn Header="路径" Width="240" Binding="{Binding Path}"
+                                            ElementStyle="{StaticResource GcCellPath}" />
+                        <DataGridTextColumn Header="大小" Width="100"
+                                            Binding="{Binding SizeBytes, Converter={StaticResource SizeFormatter}}"
+                                            ElementStyle="{StaticResource GcCellNumber}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Border Grid.Row="2" Padding="16,12"
+                        BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,1,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="日志目录：" Style="{StaticResource GcCaption}" />
+                        <TextBlock Text="{Binding LogDirectory}" Style="{StaticResource GcMono}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 空态 -->
+        <Border Style="{StaticResource GcCard}"
+                Visibility="{Binding EntryCount, Converter={StaticResource IntToVisibility}, ConverterParameter=inverse}">
+            <StackPanel HorizontalAlignment="Center" Margin="0,24">
+                <Path Width="48" Height="48" Stretch="Uniform"
+                      Data="{StaticResource Icon.History}"
+                      Fill="Transparent"
+                      Stroke="{DynamicResource Brush.Text.Tertiary}"
+                      StrokeThickness="1.4"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                      HorizontalAlignment="Center" />
+                <TextBlock Text="还没有操作记录" FontSize="16" FontWeight="SemiBold" Margin="0,16,0,0"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="完成一次扫描或处理后，记录会出现在这里。"
+                           Style="{StaticResource GcBody.Secondary}" Margin="0,4,0,0"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

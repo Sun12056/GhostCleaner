@@ -1,0 +1,131 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:GhostCleaner.App.Converters">
+
+    <!-- ============================================================
+         侧栏导航 · NavigationItem
+         规范：docs/ui-0.1/09-组件规范.md §18
+         高 40 · 圆角 6 · 选中态 = 浅靛底 + 左侧 3px 靛蓝指示条
+         注意：资源顺序按依赖排列（StaticResource 不支持前向引用）
+         ============================================================ -->
+
+    <converters:StringToResourceConverter x:Key="ResourceKeyToGeometry" />
+
+    <Style x:Key="GcSidebar" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Sidebar}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="0,0,1,0" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ========== 导航项（必须先定义） ========== -->
+    <Style x:Key="GcNavItem" TargetType="ListBoxItem">
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Margin" Value="8,2" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="FontFamily" Value="{StaticResource Font.UIText}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Grid Background="Transparent">
+                        <Border x:Name="Bd"
+                                Background="Transparent"
+                                CornerRadius="{StaticResource Radius.SM}"
+                                SnapsToDevicePixels="True" />
+                        <!-- 左侧 3px 选中指示条 -->
+                        <Rectangle x:Name="Indicator"
+                                   Width="3" Height="16"
+                                   RadiusX="1.5" RadiusY="1.5"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Margin="-8,0,0,0"
+                                   Fill="{DynamicResource Brush.Accent}"
+                                   Visibility="Collapsed" />
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Bg.Hover}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Bg.Active}" />
+                            <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 导航项内容模板：图标 20 + 文本 -->
+    <DataTemplate x:Key="GcNavItemTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Path Grid.Column="0"
+                  Width="20" Height="20" Stretch="Uniform"
+                  Data="{Binding IconKey, Converter={StaticResource ResourceKeyToGeometry}}"
+                  Fill="Transparent"
+                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                  StrokeThickness="1.75"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                  VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1"
+                       Text="{Binding Name}"
+                       Margin="12,0,0,0"
+                       VerticalAlignment="Center"
+                       FontFamily="{StaticResource Font.UIText}"
+                       FontSize="14"
+                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+        </Grid>
+    </DataTemplate>
+
+    <!-- ========== 导航列表 ========== -->
+    <Style x:Key="GcNavListBox" TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="ItemTemplate" Value="{StaticResource GcNavItemTemplate}" />
+        <Setter Property="ItemContainerStyle" Value="{StaticResource GcNavItem}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <ScrollViewer Focusable="False">
+                        <ItemsPresenter />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 设置页分区导航 -->
+    <Style x:Key="GcSettingsNavItem" TargetType="ListBoxItem" BasedOn="{StaticResource GcNavItem}">
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Margin" Value="0,2" />
+    </Style>
+
+    <Style x:Key="GcSettingsNavListBox" TargetType="ListBox" BasedOn="{StaticResource GcNavListBox}">
+        <Setter Property="ItemTemplate" Value="{x:Null}" />
+        <Setter Property="ItemContainerStyle" Value="{StaticResource GcSettingsNavItem}" />
+    </Style>
+
+</ResourceDictionary>

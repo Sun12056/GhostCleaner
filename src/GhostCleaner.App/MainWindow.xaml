@@ -1,0 +1,143 @@
+<Window x:Class="GhostCleaner.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:GhostCleaner.App.ViewModels"
+        xmlns:views="clr-namespace:GhostCleaner.App.Views"
+        xmlns:conv="clr-namespace:GhostCleaner.App.Converters"
+        Title="GhostCleaner — Windows 软件残留分析工具"
+        Icon="Assets/app-icon.ico"
+        Width="1280" Height="840"
+        MinWidth="1080" MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Brush.Bg.Canvas}"
+        FontFamily="{StaticResource Font.UIText}"
+        FontSize="14"
+        SnapsToDevicePixels="True">
+
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <!-- 页面路由：ViewModel → View -->
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:OrphanScanViewModel}">
+            <views:OrphanScanView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:QuarantineViewModel}">
+            <views:QuarantineView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:LogViewModel}">
+            <views:LogView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AboutViewModel}">
+            <views:AboutView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="232" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ============ 侧栏 ============ -->
+        <Border Grid.Column="0" Style="{StaticResource GcSidebar}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- 品牌 -->
+                <Grid Grid.Row="0" Margin="16,12,16,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Column="0" Width="24" Height="24">
+                        <Grid Width="48" Height="48">
+                            <Path Data="{StaticResource Icon.Brand.Outline}"
+                                  Stroke="{DynamicResource Brush.Accent}"
+                                  StrokeThickness="2.6"
+                                  StrokeLineJoin="Round"
+                                  Fill="Transparent" />
+                            <Path Data="{StaticResource Icon.Brand.Ghost}"
+                                  Fill="{DynamicResource Brush.Accent}" />
+                        </Grid>
+                    </Viewbox>
+
+                    <TextBlock Grid.Column="1"
+                               Text="GhostCleaner"
+                               Margin="8,0,0,0"
+                               VerticalAlignment="Center"
+                               FontFamily="{StaticResource Font.UI}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Text.Primary}" />
+                </Grid>
+
+                <!-- 导航 -->
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding NavItems}"
+                         SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                         Style="{StaticResource GcNavListBox}"
+                         AutomationProperties.Name="主导航" />
+
+                <!-- 底部状态 -->
+                <Border Grid.Row="2"
+                        Padding="16,12"
+                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                        BorderThickness="0,1,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="v0.1.0"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Brush.Text.Tertiary}"
+                                   VerticalAlignment="Center" />
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Path Width="14" Height="14" Stretch="Uniform"
+                                  Data="{StaticResource Icon.AlertTriangle}"
+                                  Fill="Transparent"
+                                  Stroke="{DynamicResource Brush.Warning}"
+                                  StrokeThickness="1.75"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  VerticalAlignment="Center"
+                                  Visibility="{Binding IsAdministrator, Converter={StaticResource BoolToVisibility}, ConverterParameter=inverse}" />
+                            <TextBlock Text="{Binding AdminText}"
+                                       FontSize="12"
+                                       Margin="4,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource Brush.Text.Tertiary}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ============ 内容区 ============ -->
+        <ScrollViewer Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Padding="{StaticResource Layout.PagePadding}"
+                      Focusable="False">
+            <Grid MaxWidth="1400" HorizontalAlignment="Left">
+                <ContentControl Content="{Binding CurrentView}" />
+            </Grid>
+        </ScrollViewer>
+        <!-- Toast 层：跨全窗、置于最上层。容器自身穿透点击，不遮挡下方交互。 -->
+        <views:ToastHost Grid.Column="1" />
+
+    </Grid>
+</Window>

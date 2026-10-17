@@ -1,0 +1,67 @@
+<Window x:Class="GhostCleaner.App.Views.MessageDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        SnapsToDevicePixels="True"
+        FontFamily="{StaticResource Font.UIText}"
+        FontSize="14">
+
+    <Grid x:Name="ScrimGrid"
+          MinWidth="380"
+          MaxWidth="580"
+          Background="{DynamicResource Brush.Bg.Scrim}"
+          MouseLeftButtonDown="OnScrimMouseDown">
+
+        <Border Style="{StaticResource GcCard}"
+                MinWidth="360"
+                MaxWidth="540"
+                Margin="24"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center">
+
+            <StackPanel>
+                <!-- 标题行：图标 + 文案 -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Path x:Name="KindIcon"
+                          Width="18" Height="18" Stretch="Uniform"
+                          VerticalAlignment="Center"
+                          Margin="0,0,9,0"
+                          Fill="Transparent"
+                          StrokeThickness="1.75"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+
+                    <TextBlock x:Name="TitleText"
+                               VerticalAlignment="Center"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Text.Primary}" />
+                </StackPanel>
+
+                <TextBlock x:Name="MessageText"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,18"
+                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="CancelButton"
+                            Style="{StaticResource GcButton.Subtle}"
+                            Content="取消"
+                            MinWidth="88"
+                            Margin="0,0,8,0"
+                            Click="OnCancelClick" />
+                    <Button x:Name="OkButton"
+                            Style="{StaticResource GcButton.Primary}"
+                            Content="确定"
+                            MinWidth="88"
+                            Click="OnOkClick" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

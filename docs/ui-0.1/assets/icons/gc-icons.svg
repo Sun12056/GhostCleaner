@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+<!--
+  GhostCleaner Icon System — Icon Sprite v0.1
+  栅格 24×24｜描边 1.75｜端点/连接 round｜fill=none｜描边色 currentColor
+  用法：<svg class="gc-icon"><use href="gc-icons.svg#gc-scan"/></svg>
+  WPF 迁移：取 <symbol> 内 path 的 d，写入 PathGeometry（见 08-图标系统.md）
+-->
+<g id="gc-base" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></g>
+
+<!-- ── 导航 ───────────────────────────────────────── -->
+<symbol id="gc-dashboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 13.6 16.2 9.4"/><circle cx="12" cy="16.6" r="1.6"/></g></symbol>
+<symbol id="gc-scan" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V6a2 2 0 0 1 2-2h2"/><path d="M16 4h2a2 2 0 0 1 2 2v2"/><path d="M21 16v2a2 2 0 0 1-2 2h-2"/><path d="M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="11.6" cy="11.6" r="3.4"/><path d="M14.2 14.2 17 17"/></g></symbol>
+<symbol id="gc-results" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M4.5 6.2 6 7.7 8.2 5"/><path d="M4.5 18.2 6 19.7 8.2 17"/><path d="M4.5 12h.01"/></g></symbol>
+<symbol id="gc-quarantine" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1.6"/><path d="M5 9v9.6A1.6 1.6 0 0 0 6.6 20h10.8a1.6 1.6 0 0 0 1.6-1.6V9"/><path d="M10 13h4"/></g></symbol>
+<symbol id="gc-history" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12a8.4 8.4 0 1 0 2.6-6"/><path d="M3.2 4.2v4.6h4.6"/><path d="M12 8v4.4l3.2 1.9"/></g></symbol>
+<symbol id="gc-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8.4"/><path d="M17.6 7H20"/><circle cx="15" cy="7" r="2.1"/><path d="M4 17h3.4"/><path d="M12.6 17H20"/><circle cx="9" cy="17" r="2.1"/></g></symbol>
+<symbol id="gc-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5.4"/><path d="M12 7.9h.01"/></g></symbol>
+
+<!-- ── 操作 ───────────────────────────────────────── -->
+<symbol id="gc-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 5.6 19 12 8.5 18.4Z"/></g></symbol>
+<symbol id="gc-pause" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 5.5v13"/><path d="M14.8 5.5v13"/></g></symbol>
+<symbol id="gc-stop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="6.4" y="6.4" width="11.2" height="11.2" rx="2.2"/></g></symbol>
+<symbol id="gc-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19.6 12a7.6 7.6 0 1 1-2.2-5.4"/><path d="M20 4.2V9h-4.8"/></g></symbol>
+<symbol id="gc-folder-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.6V6.6A1.6 1.6 0 0 1 4.6 5h3.7l2 2.5H19a1.6 1.6 0 0 1 1.6 1.6V10"/><path d="M3 8.6h16a1 1 0 0 1 .98 1.21l-1.4 6.3A1.6 1.6 0 0 1 17.6 17.7H4.6A1.6 1.6 0 0 1 3 16.1Z"/></g></symbol>
+<symbol id="gc-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 6.6V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h.6"/></g></symbol>
+<symbol id="gc-external-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14.4V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.6"/></g></symbol>
+<symbol id="gc-export" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 18.5h15"/></g></symbol>
+<symbol id="gc-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9.5 7V5.6A1.6 1.6 0 0 1 11.1 4h1.8a1.6 1.6 0 0 1 1.6 1.6V7"/><path d="M6 7l.8 11.5A1.6 1.6 0 0 0 8.4 20h7.2a1.6 1.6 0 0 0 1.6-1.5L18 7"/><path d="M10.4 11v5.4"/><path d="M13.6 11v5.4"/></g></symbol>
+<symbol id="gc-restore" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11.5h9.8a5 5 0 0 1 0 10H8"/><path d="M7.4 7.1 3.4 11.5l4 4.4"/></g></symbol>
+<symbol id="gc-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="6.3"/><path d="M15.3 15.3 20 20"/></g></symbol>
+<symbol id="gc-filter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M6.8 12h10.4"/><path d="M9.6 18h4.8"/></g></symbol>
+<symbol id="gc-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5v13"/><path d="M5.5 12h13"/></g></symbol>
+<symbol id="gc-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12h13"/></g></symbol>
+<symbol id="gc-close" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 6.4 17.6 17.6"/><path d="M17.6 6.4 6.4 17.6"/></g></symbol>
+<symbol id="gc-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.6 17 19 7"/></g></symbol>
+<symbol id="gc-chevron-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 5.6 16 12l-6.4 6.4"/></g></symbol>
+<symbol id="gc-chevron-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 9.6 12 16l6.4-6.4"/></g></symbol>
+<symbol id="gc-arrow-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="M13.4 7 18.6 12l-5.2 5"/></g></symbol>
+<symbol id="gc-bookmark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 4.5h10.8v16L12 16.4l-5.4 4.1Z"/></g></symbol>
+
+<!-- ── 状态 / 语义 ─────────────────────────────────── -->
+<symbol id="gc-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5Z"/></g></symbol>
+<symbol id="gc-shield-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5Z"/><path d="M8.8 11.9 11.2 14.3 15.4 9.9"/></g></symbol>
+<symbol id="gc-shield-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5Z"/><path d="M12 9.4v3.6"/><path d="M12 16h.01"/></g></symbol>
+<symbol id="gc-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4.8" y="10.4" width="14.4" height="9.6" rx="2.2"/><path d="M8.4 10.4V8a3.6 3.6 0 0 1 7.2 0v2.4"/></g></symbol>
+<symbol id="gc-eye-off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.4 19.6 20"/><path d="M9.9 5.7A8.9 8.9 0 0 1 12 5.4c5 0 9 5.2 9 6.7 0 .8-.9 2.3-2.4 3.6"/><path d="M6.4 8C4.8 9.3 3.2 11.1 3.2 12.1c0 1.5 4 6.6 8.8 6.6 1.1 0 2.2-.2 3.2-.7"/><path d="M9.6 10.3a3 3 0 0 0 4.2 4.2"/></g></symbol>
+<symbol id="gc-alert-triangle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.6 21 19.4H3Z"/><path d="M12 10v4"/><path d="M12 16.7h.01"/></g></symbol>
+<symbol id="gc-alert-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.6v5"/><path d="M12 15.8h.01"/></g></symbol>
+<symbol id="gc-circle-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M8.2 12.3 11 15l5-5.5"/></g></symbol>
+<symbol id="gc-circle-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M9.2 9.2 14.8 14.8"/><path d="M14.8 9.2 9.2 14.8"/></g></symbol>
+
+<!-- ── 对象 / 数据 ─────────────────────────────────── -->
+<symbol id="gc-hard-drive" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2.2"/><path d="M7 14.4h.01"/><path d="M16.6 14.4h.01"/></g></symbol>
+<symbol id="gc-file-text" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13.6 3.6H7a1.6 1.6 0 0 0-1.6 1.6v13.8A1.6 1.6 0 0 0 7 20.6h10a1.6 1.6 0 0 0 1.6-1.6V8.6Z"/><path d="M13.6 3.6v5h5"/><path d="M9 13h6"/><path d="M9 16.4h4"/></g></symbol>
+<symbol id="gc-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6 21 8l-9 4.4L3 8Z"/><path d="M3.4 12.4 12 16.8l8.6-4.4"/><path d="M3.4 16.4 12 20.8l8.6-4.4"/></g></symbol>
+<symbol id="gc-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7v5.4l3.3 2"/></g></symbol>
+
+<!-- ── 外观 / 主题 ─────────────────────────────────── -->
+<symbol id="gc-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3.2v2"/><path d="M12 18.8v2"/><path d="M3.2 12h2"/><path d="M18.8 12h2"/><path d="M5.8 5.8 7.2 7.2"/><path d="M16.8 16.8l1.4 1.4"/><path d="M18.2 5.8 16.8 7.2"/><path d="M7.2 16.8 5.8 18.2"/></g></symbol>
+<symbol id="gc-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13.6A8 8 0 0 1 10.4 4a8.6 8.6 0 1 0 9.6 9.6Z"/></g></symbol>
+<symbol id="gc-monitor" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.4" width="18" height="12" rx="2.2"/><path d="M9 20.4h6"/><path d="M12 16.4v4"/></g></symbol>
+
+<!-- ── 品牌 ───────────────────────────────────────── -->
+<symbol id="gc-brand" viewBox="0 0 48 48"><g fill="none"><path d="M24 5 L41 11.5 V23 C41 33.5 33.5 40.5 24 43.5 C14.5 40.5 7 33.5 7 23 V11.5 Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><path d="M15 31 V22.5 a9 9 0 0 1 18 0 V31 q -3 5 -6 0 q -3 5 -6 0 q -3 5 -6 0 Z" fill="currentColor"/></g></symbol>
+</svg>

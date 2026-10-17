@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" role="img" aria-label="GhostCleaner">
+  <title>GhostCleaner</title>
+  <!-- 盾形边界：保护 / 可撤销 -->
+  <path d="M24 5 L41 11.5 V23 C41 33.5 33.5 40.5 24 43.5 C14.5 40.5 7 33.5 7 23 V11.5 Z"
+        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- 抽象幽灵：残留的软件本体（无眼睛、无表情） -->
+  <path d="M15 31 V22.5 a9 9 0 0 1 18 0 V31 q -3 5 -6 0 q -3 5 -6 0 q -3 5 -6 0 Z"
+        fill="currentColor"/>
+</svg>

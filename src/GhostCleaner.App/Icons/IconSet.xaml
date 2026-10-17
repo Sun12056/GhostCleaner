@@ -1,0 +1,75 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================
+         GhostCleaner Icon Set
+         24 × 24 栅格 · 线性 · 描边 1.75 · 圆头圆角 · currentColor
+         来源：docs/ui-0.1/assets/icons/gc-icons.svg（路径数据一一对应）
+         用法：
+           <Path Width="20" Height="20" Stretch="Uniform"
+                 Data="{StaticResource Icon.Scan}"
+                 Stroke="{DynamicResource Brush.Text.Secondary}"
+                 StrokeThickness="1.75" StrokeStartLineCap="Round"
+                 StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+         ============================================================ -->
+
+    <!-- ========== 导航 ========== -->
+    <StreamGeometry x:Key="Icon.Dashboard">M4 17a8 8 0 1 1 16 0 M12 13.6 16.2 9.4 M10.4 16.6a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0-3.2 0</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Scan">M3 8V6a2 2 0 0 1 2-2h2 M16 4h2a2 2 0 0 1 2 2v2 M21 16v2a2 2 0 0 1-2 2h-2 M8 20H6a2 2 0 0 1-2-2v-2 M8.2 11.6a3.4 3.4 0 1 0 6.8 0a3.4 3.4 0 1 0-6.8 0 M14.2 14.2 17 17</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Results">M11 6h9 M11 12h9 M11 18h9 M4.5 6.2 6 7.7 8.2 5 M4.5 18.2 6 19.7 8.2 17 M4.5 12h.01</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Quarantine">M4.6 4h14.8A1.6 1.6 0 0 1 21 5.6V8H3V5.6A1.6 1.6 0 0 1 4.6 4z M5 9v9.6A1.6 1.6 0 0 0 6.6 20h10.8a1.6 1.6 0 0 0 1.6-1.6V9 M10 13h4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.History">M3.6 12a8.4 8.4 0 1 0 2.6-6 M3.2 4.2v4.6h4.6 M12 8v4.4l3.2 1.9</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Settings">M4 7h8.4 M17.6 7H20 M12.9 7a2.1 2.1 0 1 0 4.2 0a2.1 2.1 0 1 0-4.2 0 M4 17h3.4 M12.6 17H20 M6.9 17a2.1 2.1 0 1 0 4.2 0a2.1 2.1 0 1 0-4.2 0</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Info">M3.4 12a8.6 8.6 0 1 0 17.2 0a8.6 8.6 0 1 0-17.2 0 M12 11.2v5.4 M11.99 7.9h.02</StreamGeometry>
+
+    <!-- ========== 操作 ========== -->
+    <StreamGeometry x:Key="Icon.Play">M8.5 5.6 19 12 8.5 18.4Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Pause">M9.2 5.5v13 M14.8 5.5v13</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Stop">M8.6 6.4h6.8A2.2 2.2 0 0 1 17.6 8.6v6.8a2.2 2.2 0 0 1-2.2 2.2H8.6a2.2 2.2 0 0 1-2.2-2.2V8.6A2.2 2.2 0 0 1 8.6 6.4z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Refresh">M19.6 12a7.6 7.6 0 1 1-2.2-5.4 M20 4.2V9h-4.8</StreamGeometry>
+    <StreamGeometry x:Key="Icon.FolderOpen">M3 8.6V6.6A1.6 1.6 0 0 1 4.6 5h3.7l2 2.5H19a1.6 1.6 0 0 1 1.6 1.6V10 M3 8.6h16a1 1 0 0 1 .98 1.21l-1.4 6.3A1.6 1.6 0 0 1 17.6 17.7H4.6A1.6 1.6 0 0 1 3 16.1V8.6z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Copy">M11 9h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z M15 6.6V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h.6</StreamGeometry>
+    <StreamGeometry x:Key="Icon.ExternalLink">M14 4h6v6 M20 4 11 13 M18 14.4V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.6</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Export">M12 4v11 M7.5 10.5 12 15l4.5-4.5 M4.5 18.5h15</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Trash">M4 7h16 M9.5 7V5.6A1.6 1.6 0 0 1 11.1 4h1.8a1.6 1.6 0 0 1 1.6 1.6V7 M6 7l.8 11.5A1.6 1.6 0 0 0 8.4 20h7.2a1.6 1.6 0 0 0 1.6-1.5L18 7 M10.4 11v5.4 M13.6 11v5.4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Restore">M3.5 11.5h9.8a5 5 0 0 1 0 10H8 M7.4 7.1 3.4 11.5l4 4.4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Search">M4.5 10.8a6.3 6.3 0 1 0 12.6 0a6.3 6.3 0 1 0-12.6 0 M15.3 15.3 20 20</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Filter">M4 6h16 M6.8 12h10.4 M9.6 18h4.8</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Plus">M12 5.5v13 M5.5 12h13</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Minus">M5.5 12h13</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Close">M6.4 6.4 17.6 17.6 M17.6 6.4 6.4 17.6</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Check">M5 12.5 9.6 17 19 7</StreamGeometry>
+
+    <!-- ========== 方向与指示 ========== -->
+    <StreamGeometry x:Key="Icon.ChevronRight">M9.6 5.6 16 12l-6.4 6.4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.ChevronDown">M5.6 9.6 12 16l6.4-6.4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.ArrowRight">M5 12h13 M13.4 7 18.6 12l-5.2 5</StreamGeometry>
+
+    <!-- ========== 状态 ========== -->
+    <StreamGeometry x:Key="Icon.Bookmark">M6.6 4.5h10.8v16L12 16.4l-5.4 4.1V4.5z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Shield">M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5L12 3.6z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.ShieldCheck">M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5L12 3.6z M8.8 11.9 11.2 14.3 15.4 9.9</StreamGeometry>
+    <StreamGeometry x:Key="Icon.ShieldAlert">M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5L12 3.6z M12 9.4v3.6 M11.99 16h.02</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Lock">M7.2 10.4h9.6a2.2 2.2 0 0 1 2.2 2.2v5.4a2.2 2.2 0 0 1-2.2 2.2H7.2A2.2 2.2 0 0 1 5 18v-5.4a2.2 2.2 0 0 1 2.2-2.2z M8.4 10.4V8a3.6 3.6 0 0 1 7.2 0v2.4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.EyeOff">M4 4.4 19.6 20 M9.9 5.7A8.9 8.9 0 0 1 12 5.4c5 0 9 5.2 9 6.7 0 .8-.9 2.3-2.4 3.6 M6.4 8C4.8 9.3 3.2 11.1 3.2 12.1c0 1.5 4 6.6 8.8 6.6 1.1 0 2.2-.2 3.2-.7 M9.6 10.3a3 3 0 0 0 4.2 4.2</StreamGeometry>
+    <StreamGeometry x:Key="Icon.AlertTriangle">M12 4.6 21 19.4H3L12 4.6z M12 10v4 M11.99 16.7h.02</StreamGeometry>
+    <StreamGeometry x:Key="Icon.AlertCircle">M3.4 12a8.6 8.6 0 1 0 17.2 0a8.6 8.6 0 1 0-17.2 0 M12 7.6v5 M11.99 15.8h.02</StreamGeometry>
+    <StreamGeometry x:Key="Icon.CircleCheck">M3.4 12a8.6 8.6 0 1 0 17.2 0a8.6 8.6 0 1 0-17.2 0 M8.2 12.3 11 15l5-5.5</StreamGeometry>
+    <StreamGeometry x:Key="Icon.CircleX">M3.4 12a8.6 8.6 0 1 0 17.2 0a8.6 8.6 0 1 0-17.2 0 M9.2 9.2 14.8 14.8 M14.8 9.2 9.2 14.8</StreamGeometry>
+
+    <!-- ========== 对象 ========== -->
+    <StreamGeometry x:Key="Icon.HardDrive">M5.2 6h13.6A2.2 2.2 0 0 1 21 8.2v7.6A2.2 2.2 0 0 1 18.8 18H5.2A2.2 2.2 0 0 1 3 15.8V8.2A2.2 2.2 0 0 1 5.2 6z M6.99 14.4h.02 M16.59 14.4h.02</StreamGeometry>
+    <StreamGeometry x:Key="Icon.FileText">M13.6 3.6H7a1.6 1.6 0 0 0-1.6 1.6v13.8A1.6 1.6 0 0 0 7 20.6h10a1.6 1.6 0 0 0 1.6-1.6V8.6L13.6 3.6z M13.6 3.6v5h5 M9 13h6 M9 16.4h4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Layers">M12 3.6 21 8l-9 4.4L3 8l9-4.4z M3.4 12.4 12 16.8l8.6-4.4 M3.4 16.4 12 20.8l8.6-4.4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Clock">M3.4 12a8.6 8.6 0 1 0 17.2 0a8.6 8.6 0 1 0-17.2 0 M12 7v5.4l3.3 2</StreamGeometry>
+
+    <!-- ========== 主题 ========== -->
+    <StreamGeometry x:Key="Icon.Sun">M8 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0 M12 3.2v2 M12 18.8v2 M3.2 12h2 M18.8 12h2 M5.8 5.8 7.2 7.2 M16.8 16.8l1.4 1.4 M18.2 5.8 16.8 7.2 M7.2 16.8 5.8 18.2</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Moon">M20 13.6A8 8 0 0 1 10.4 4a8.6 8.6 0 1 0 9.6 9.6z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Monitor">M5.2 4.4h13.6A2.2 2.2 0 0 1 21 6.6v7.6a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 14.2V6.6A2.2 2.2 0 0 1 5.2 4.4z M9 20.4h6 M12 16.4v4</StreamGeometry>
+
+    <!-- ========== 品牌（48 × 48 栅格） ========== -->
+    <StreamGeometry x:Key="Icon.Brand.Outline">M24 5 L41 11.5 V23 C41 33.5 33.5 40.5 24 43.5 C14.5 40.5 7 33.5 7 23 V11.5 Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Brand.Ghost">M15 31 V22.5 a9 9 0 0 1 18 0 V31 q -3 5 -6 0 q -3 5 -6 0 q -3 5 -6 0 Z</StreamGeometry>
+
+</ResourceDictionary>

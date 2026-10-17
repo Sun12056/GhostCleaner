@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" role="img" aria-label="GhostCleaner">
+  <title>GhostCleaner — 小尺寸简化版（20 / 16 px 使用）</title>
+  <!-- 去掉盾形描边，仅保留实心幽灵轮廓，保证 16px 可辨识 -->
+  <path d="M9 34 V24 a15 15 0 0 1 30 0 V34 q -5 8 -10 0 q -5 8 -10 0 q -5 8 -10 0 Z"
+        fill="currentColor"/>
+</svg>

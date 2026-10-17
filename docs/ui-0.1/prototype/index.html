@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GhostCleaner UI 0.1 — 可点击原型</title>
+<link rel="stylesheet" href="css/tokens.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+
+<!-- ══════════ 图标 Sprite（内联，保证 file:// 与 http:// 均可运行） ══════════ -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+<g id="gc-stroke" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></g>
+<symbol id="gc-dashboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 13.6 16.2 9.4"/><circle cx="12" cy="16.6" r="1.6"/></g></symbol>
+<symbol id="gc-scan" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V6a2 2 0 0 1 2-2h2"/><path d="M16 4h2a2 2 0 0 1 2 2v2"/><path d="M21 16v2a2 2 0 0 1-2 2h-2"/><path d="M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="11.6" cy="11.6" r="3.4"/><path d="M14.2 14.2 17 17"/></g></symbol>
+<symbol id="gc-results" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6h9"/><path d="M11 12h9"/><path d="M11 18h9"/><path d="M4.5 6.2 6 7.7 8.2 5"/><path d="M4.5 18.2 6 19.7 8.2 17"/><path d="M4.5 12h.01"/></g></symbol>
+<symbol id="gc-quarantine" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1.6"/><path d="M5 9v9.6A1.6 1.6 0 0 0 6.6 20h10.8a1.6 1.6 0 0 0 1.6-1.6V9"/><path d="M10 13h4"/></g></symbol>
+<symbol id="gc-history" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12a8.4 8.4 0 1 0 2.6-6"/><path d="M3.2 4.2v4.6h4.6"/><path d="M12 8v4.4l3.2 1.9"/></g></symbol>
+<symbol id="gc-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8.4"/><path d="M17.6 7H20"/><circle cx="15" cy="7" r="2.1"/><path d="M4 17h3.4"/><path d="M12.6 17H20"/><circle cx="9" cy="17" r="2.1"/></g></symbol>
+<symbol id="gc-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5.4"/><path d="M12 7.9h.01"/></g></symbol>
+<symbol id="gc-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 5.6 19 12 8.5 18.4Z"/></g></symbol>
+<symbol id="gc-pause" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 5.5v13"/><path d="M14.8 5.5v13"/></g></symbol>
+<symbol id="gc-stop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="6.4" y="6.4" width="11.2" height="11.2" rx="2.2"/></g></symbol>
+<symbol id="gc-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19.6 12a7.6 7.6 0 1 1-2.2-5.4"/><path d="M20 4.2V9h-4.8"/></g></symbol>
+<symbol id="gc-folder-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.6V6.6A1.6 1.6 0 0 1 4.6 5h3.7l2 2.5H19a1.6 1.6 0 0 1 1.6 1.6V10"/><path d="M3 8.6h16a1 1 0 0 1 .98 1.21l-1.4 6.3A1.6 1.6 0 0 1 17.6 17.7H4.6A1.6 1.6 0 0 1 3 16.1Z"/></g></symbol>
+<symbol id="gc-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 6.6V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h.6"/></g></symbol>
+<symbol id="gc-external-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14.4V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.6"/></g></symbol>
+<symbol id="gc-export" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 18.5h15"/></g></symbol>
+<symbol id="gc-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9.5 7V5.6A1.6 1.6 0 0 1 11.1 4h1.8a1.6 1.6 0 0 1 1.6 1.6V7"/><path d="M6 7l.8 11.5A1.6 1.6 0 0 0 8.4 20h7.2a1.6 1.6 0 0 0 1.6-1.5L18 7"/><path d="M10.4 11v5.4"/><path d="M13.6 11v5.4"/></g></symbol>
+<symbol id="gc-restore" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11.5h9.8a5 5 0 0 1 0 10H8"/><path d="M7.4 7.1 3.4 11.5l4 4.4"/></g></symbol>
+<symbol id="gc-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="6.3"/><path d="M15.3 15.3 20 20"/></g></symbol>
+<symbol id="gc-filter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M6.8 12h10.4"/><path d="M9.6 18h4.8"/></g></symbol>
+<symbol id="gc-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5v13"/><path d="M5.5 12h13"/></g></symbol>
+<symbol id="gc-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12h13"/></g></symbol>
+<symbol id="gc-close" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 6.4 17.6 17.6"/><path d="M17.6 6.4 6.4 17.6"/></g></symbol>
+<symbol id="gc-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.6 17 19 7"/></g></symbol>
+<symbol id="gc-chevron-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 5.6 16 12l-6.4 6.4"/></g></symbol>
+<symbol id="gc-chevron-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 9.6 12 16l6.4-6.4"/></g></symbol>
+<symbol id="gc-arrow-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="M13.4 7 18.6 12l-5.2 5"/></g></symbol>
+<symbol id="gc-bookmark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 4.5h10.8v16L12 16.4l-5.4 4.1Z"/></g></symbol>
+<symbol id="gc-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5Z"/></g></symbol>
+<symbol id="gc-shield-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5Z"/><path d="M8.8 11.9 11.2 14.3 15.4 9.9"/></g></symbol>
+<symbol id="gc-shield-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6 20 6.5v5.4c0 4.6-3.3 7.6-8 9.5-4.7-1.9-8-4.9-8-9.5V6.5Z"/><path d="M12 9.4v3.6"/><path d="M12 16h.01"/></g></symbol>
+<symbol id="gc-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4.8" y="10.4" width="14.4" height="9.6" rx="2.2"/><path d="M8.4 10.4V8a3.6 3.6 0 0 1 7.2 0v2.4"/></g></symbol>
+<symbol id="gc-eye-off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.4 19.6 20"/><path d="M9.9 5.7A8.9 8.9 0 0 1 12 5.4c5 0 9 5.2 9 6.7 0 .8-.9 2.3-2.4 3.6"/><path d="M6.4 8C4.8 9.3 3.2 11.1 3.2 12.1c0 1.5 4 6.6 8.8 6.6 1.1 0 2.2-.2 3.2-.7"/><path d="M9.6 10.3a3 3 0 0 0 4.2 4.2"/></g></symbol>
+<symbol id="gc-alert-triangle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.6 21 19.4H3Z"/><path d="M12 10v4"/><path d="M12 16.7h.01"/></g></symbol>
+<symbol id="gc-alert-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.6v5"/><path d="M12 15.8h.01"/></g></symbol>
+<symbol id="gc-circle-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M8.2 12.3 11 15l5-5.5"/></g></symbol>
+<symbol id="gc-circle-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M9.2 9.2 14.8 14.8"/><path d="M14.8 9.2 9.2 14.8"/></g></symbol>
+<symbol id="gc-hard-drive" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2.2"/><path d="M7 14.4h.01"/><path d="M16.6 14.4h.01"/></g></symbol>
+<symbol id="gc-file-text" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13.6 3.6H7a1.6 1.6 0 0 0-1.6 1.6v13.8A1.6 1.6 0 0 0 7 20.6h10a1.6 1.6 0 0 0 1.6-1.6V8.6Z"/><path d="M13.6 3.6v5h5"/><path d="M9 13h6"/><path d="M9 16.4h4"/></g></symbol>
+<symbol id="gc-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6 21 8l-9 4.4L3 8Z"/><path d="M3.4 12.4 12 16.8l8.6-4.4"/><path d="M3.4 16.4 12 20.8l8.6-4.4"/></g></symbol>
+<symbol id="gc-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7v5.4l3.3 2"/></g></symbol>
+<symbol id="gc-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3.2v2"/><path d="M12 18.8v2"/><path d="M3.2 12h2"/><path d="M18.8 12h2"/><path d="M5.8 5.8 7.2 7.2"/><path d="M16.8 16.8l1.4 1.4"/><path d="M18.2 5.8 16.8 7.2"/><path d="M7.2 16.8 5.8 18.2"/></g></symbol>
+<symbol id="gc-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13.6A8 8 0 0 1 10.4 4a8.6 8.6 0 1 0 9.6 9.6Z"/></g></symbol>
+<symbol id="gc-monitor" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.4" width="18" height="12" rx="2.2"/><path d="M9 20.4h6"/><path d="M12 16.4v4"/></g></symbol>
+<symbol id="gc-brand" viewBox="0 0 48 48"><g fill="none"><path d="M24 5 L41 11.5 V23 C41 33.5 33.5 40.5 24 43.5 C14.5 40.5 7 33.5 7 23 V11.5 Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><path d="M15 31 V22.5 a9 9 0 0 1 18 0 V31 q -3 5 -6 0 q -3 5 -6 0 q -3 5 -6 0 Z" fill="currentColor"/></g></symbol>
+</svg>
+
+<div class="app">
+
+  <!-- ══════════ 标题栏（模拟 Windows） ══════════ -->
+  <div class="titlebar">
+    <svg class="brand-icon" viewBox="0 0 48 48"><use href="#gc-brand"/></svg>
+    <span class="title">GhostCleaner — Windows 软件残留分析工具</span>
+    <div class="tb-actions">
+      <button class="tb-btn" id="themeBtn" title="切换主题（浅色 / 深色 / 跟随系统）">
+        <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-moon" id="themeIconUse"/></svg>
+      </button>
+      <button class="tb-btn" aria-label="最小化"><i class="tb-glyph min"></i></button>
+      <button class="tb-btn" aria-label="最大化"><i class="tb-glyph max"></i></button>
+      <button class="tb-btn close" aria-label="关闭"><i class="tb-glyph cls"></i></button>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <!-- ══════════ 侧栏 ══════════ -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <svg class="gc-icon" viewBox="0 0 48 48"><use href="#gc-brand"/></svg>
+        <span class="name">GhostCleaner</span>
+      </div>
+      <nav class="sidebar-nav" id="nav">
+        <button class="nav-item active" data-route="dashboard"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-dashboard"/></svg>概览</button>
+        <button class="nav-item" data-route="scan"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-scan"/></svg>残留扫描</button>
+        <button class="nav-item" data-route="results"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-results"/></svg>扫描结果</button>
+        <button class="nav-item" data-route="quarantine"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-quarantine"/></svg>隔离区</button>
+        <div class="nav-sep"></div>
+        <button class="nav-item" data-route="history"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-history"/></svg>扫描记录</button>
+        <button class="nav-item" data-route="settings"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-settings"/></svg>设置</button>
+        <button class="nav-item" data-route="about"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-info"/></svg>关于</button>
+      </nav>
+      <div class="sidebar-foot">
+        <span class="ver">v0.1.0</span>
+        <span class="spacer"></span>
+        <svg class="gc-icon i16" viewBox="0 0 24 24" style="color:var(--warning-default)"><use href="#gc-alert-triangle"/></svg>
+        <span class="ver">非管理员</span>
+      </div>
+    </aside>
+
+    <!-- ══════════ 内容区 ══════════ -->
+    <main class="main" id="main">
+
+      <!-- ───────── 概览 ───────── -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-head">
+          <div class="ph-text">
+            <h1 class="page-title">概览</h1>
+            <div class="page-sub">GhostCleaner 只做检测。所有结论都需要你确认后才会处理。</div>
+          </div>
+        </div>
+
+        <div class="banner banner-warning" style="margin-bottom:var(--sp-6)">
+          <svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-alert-triangle"/></svg>
+          <div>
+            <div class="banner-title">未以管理员身份运行</div>
+            <div class="banner-body">注册表卸载项、服务、计划任务等来源可能读取不完整。判定会偏保守：受影响的结果会被标记为高风险并要求人工复核。建议右键以管理员身份重新启动。</div>
+          </div>
+        </div>
+
+        <div class="hero">
+          <div class="hero-text">
+            <h2 class="hero-title">发现 Windows 忘记的软件残留。</h2>
+            <p class="hero-desc">扫描 D:\、E:\ 等盘上的旧软件目录，从 9 个来源逐个查证 Windows 是否还记得它们，然后把判断依据摊开给你看。</p>
+          </div>
+          <div class="hero-action">
+            <button class="btn btn-primary lg" data-nav="scan">开始扫描</button>
+          </div>
+        </div>
+
+        <div class="metrics" style="margin-top:var(--sp-4)">
+          <div class="metric">
+            <div class="metric-label">上次扫描</div>
+            <div class="metric-value">2 天前</div>
+            <div class="metric-sub">2026-10-05 14:22 · 耗时 42.6 秒</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">疑似残留</div>
+            <div class="metric-value">7<span class="metric-unit">项</span></div>
+            <div class="metric-sub">高概率 3 · 需要复核 4</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">预计可释放</div>
+            <div class="metric-value">8.6<span class="metric-unit">GB</span></div>
+            <div class="metric-sub">仅统计未排除条目</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">隔离区</div>
+            <div class="metric-value">3<span class="metric-unit">项</span></div>
+            <div class="metric-sub">保留 15 天 · 最早 12 天后到期</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:var(--sp-4)">
+          <div class="card-head">
+            <span class="t-h3">最近一次扫描</span>
+            <span class="spacer"></span>
+            <span class="badge badge-accent">D:\ · E:\</span>
+            <button class="btn btn-secondary sm" data-nav="results">查看结果</button>
+          </div>
+          <p class="t-sm c-secondary" style="margin:0">
+            发现 7 个疑似软件残留，共 8.6 GB。其中 3 个为高概率残留，4 个需要人工确认，1 个受保护或已排除。
+            已给出每项的判断依据，默认未勾选任何条目。
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <span class="t-h3">需要你看一眼</span>
+            <span class="spacer"></span>
+            <span class="t-caption c-tertiary">高概率残留，但存在保护信号</span>
+          </div>
+          <div class="review-list" id="dashReview"></div>
+        </div>
+      </section>
+
+      <!-- ───────── 残留扫描 · 配置 ───────── -->
+      <section class="page" id="page-scan">
+        <div class="page-head">
+          <div class="ph-text">
+            <h1 class="page-title">残留扫描</h1>
+            <div class="page-sub">选择扫描范围。扫描只读取目录信息与系统关联，不会修改或删除任何文件。</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <span class="t-h3">扫描范围</span>
+            <span class="spacer"></span>
+            <span class="t-caption c-tertiary">已选 3 个根路径</span>
+          </div>
+
+          <div class="t-overline c-tertiary" style="margin-bottom:var(--sp-2)">磁盘</div>
+          <div class="drive-grid">
+            <div class="drive-card">
+              <svg class="gc-icon dc-icon" viewBox="0 0 24 24"><use href="#gc-hard-drive"/></svg>
+              <div>
+                <div class="dc-name">C:<span class="badge badge-neutral" style="margin-left:8px">系统盘</span></div>
+                <div class="dc-meta">可用 128 GB / 共 512 GB</div>
+              </div>
+            </div>
+            <div class="drive-card checked">
+              <svg class="gc-icon dc-icon" viewBox="0 0 24 24"><use href="#gc-hard-drive"/></svg>
+              <div>
+                <div class="dc-name">D:</div>
+                <div class="dc-meta">可用 412 GB / 共 1.0 TB</div>
+              </div>
+            </div>
+            <div class="drive-card checked">
+              <svg class="gc-icon dc-icon" viewBox="0 0 24 24"><use href="#gc-hard-drive"/></svg>
+              <div>
+                <div class="dc-name">E:</div>
+                <div class="dc-meta">可用 220 GB / 共 2.0 TB</div>
+              </div>
+            </div>
+            <div class="drive-card checked">
+              <svg class="gc-icon dc-icon" viewBox="0 0 24 24"><use href="#gc-hard-drive"/></svg>
+              <div>
+                <div class="dc-name">F:</div>
+                <div class="dc-meta">可用 66 GB / 共 256 GB</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="t-overline c-tertiary" style="margin:var(--sp-5) 0 var(--sp-2)">自定义目录</div>
+          <div class="dir-list">
+            <div class="dir-item">
+              <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-folder-open"/></svg>
+              <span class="dp">D:\Program Files</span>
+              <span class="spacer"></span>
+              <button class="icon-btn sm" aria-label="移除"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-close"/></svg></button>
+            </div>
+            <div class="dir-item">
+              <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-folder-open"/></svg>
+              <span class="dp">E:\PortableApps</span>
+              <span class="spacer"></span>
+              <button class="icon-btn sm" aria-label="移除"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-close"/></svg></button>
+            </div>
+          </div>
+          <div class="row g8" style="margin-top:var(--sp-3)">
+            <div class="search" style="flex:1;max-width:420px">
+              <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-folder-open"/></svg>
+              <input class="input" placeholder="输入目录路径，或点击右侧选择文件夹" />
+            </div>
+            <button class="btn btn-secondary">选择文件夹</button>
+            <button class="btn btn-subtle">添加常见安装目录</button>
+          </div>
+
+          <div class="card-foot">
+            <span class="t-caption c-tertiary">盘符根与 Program Files 等容器目录只取一级子目录；白名单路径与保留关键词会自动跳过。</span>
+            <span class="spacer"></span>
+            <button class="btn btn-primary" id="startScanBtn">
+              <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-play"/></svg>开始扫描
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="expander" id="scanOptions">
+            <button class="expander-head" id="scanOptionsHead">
+              <svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-chevron-right"/></svg>
+              扫描选项
+              <span class="spacer"></span>
+              <span class="badge badge-neutral">默认</span>
+            </button>
+            <div class="expander-body">
+              <div class="option-grid">
+                <div class="opt-row">
+                  <div class="or-t"><div class="or-n">最大扫描层级</div><div class="or-d">从根路径向下探测的层数</div></div>
+                  <div class="or-c">
+                    <div class="select"><select><option>1 层</option><option selected>2 层（推荐）</option><option>3 层</option><option>4 层</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div>
+                  </div>
+                </div>
+                <div class="opt-row">
+                  <div class="or-t"><div class="or-n">包含隐藏目录</div><div class="or-d">关闭时可避免误入系统目录</div></div>
+                  <div class="or-c"><label class="switch"><input type="checkbox"/><span class="switch-track"><span class="switch-thumb"></span></span></label></div>
+                </div>
+                <div class="opt-row">
+                  <div class="or-t"><div class="or-n">软件判定阈值</div><div class="or-d">判定为"像软件目录"的最低分值</div></div>
+                  <div class="or-c">
+                    <div class="select"><select><option>20（宽松）</option><option>35</option><option selected>50（推荐）</option><option>70（严格）</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div>
+                  </div>
+                </div>
+                <div class="opt-row">
+                  <div class="or-t"><div class="or-n">跳过符号链接</div><div class="or-d">避免循环与跨卷误判</div></div>
+                  <div class="or-c"><label class="switch"><input type="checkbox" checked/><span class="switch-track"><span class="switch-thumb"></span></span></label></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── 扫描中 ───────── -->
+      <section class="page" id="page-scanning">
+        <div class="scanning-wrap">
+          <div class="steps" style="margin-bottom:var(--sp-8)">
+            <span class="step done"><span class="dot"></span>建立关联索引</span><span class="step-sep"></span>
+            <span class="step active"><span class="dot"></span>枚举候选目录</span><span class="step-sep"></span>
+            <span class="step"><span class="dot"></span>逐个度量</span><span class="step-sep"></span>
+            <span class="step"><span class="dot"></span>分析判定</span>
+          </div>
+
+          <div class="scan-ring-row">
+            <div class="ring">
+              <svg width="88" height="88" viewBox="0 0 88 88">
+                <circle class="ring-bg" cx="44" cy="44" r="40" fill="none" stroke-width="6"/>
+                <circle class="ring-fg" id="ringFg" cx="44" cy="44" r="40" fill="none" stroke-width="6"
+                        stroke-dasharray="251.3" stroke-dashoffset="94.2"/>
+              </svg>
+              <div class="ring-text" id="ringText">63%</div>
+            </div>
+            <div class="scan-current">
+              <div class="scan-phase" id="scanPhase">正在枚举候选目录</div>
+              <div class="scan-path" id="scanPath">D:\Program Files\ExampleApp\resources\lang</div>
+              <div class="t-caption c-tertiary" style="margin-top:var(--sp-2)">已用 <span class="num" id="scanElapsed">00:27</span> · 预计剩余 <span class="num">00:16</span></div>
+            </div>
+          </div>
+
+          <div class="scan-stats">
+            <div class="scan-stat"><div class="sv num" id="statScanned">18,492</div><div class="sl">已检查目录</div></div>
+            <div class="scan-stat"><div class="sv num" id="statCandidate">264</div><div class="sl">发现候选</div></div>
+            <div class="scan-stat"><div class="sv num" id="statOrphan">12</div><div class="sl">疑似残留</div></div>
+            <div class="scan-stat"><div class="sv num">4.2 GB</div><div class="sl">已扫描体积</div></div>
+          </div>
+
+          <div class="scan-actions">
+            <button class="btn btn-secondary" id="pauseBtn">
+              <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-pause"/></svg>暂停
+            </button>
+            <button class="btn btn-secondary" id="cancelBtn">
+              <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-stop"/></svg>取消
+            </button>
+          </div>
+
+          <div class="live-list" id="liveList">
+            <div class="live-item"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-layers"/></svg><span class="lp">D:\Program Files\ExampleApp</span><span class="ls">1.42 GB</span><span class="badge badge-accent" style="margin-left:8px">92%</span></div>
+            <div class="live-item"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-layers"/></svg><span class="lp">D:\Program Files\OldToolSuite</span><span class="ls">3.21 GB</span><span class="badge badge-accent" style="margin-left:8px">88%</span></div>
+            <div class="live-item"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-layers"/></svg><span class="lp">E:\Software\MediaConverter</span><span class="ls">742 MB</span><span class="badge badge-neutral" style="margin-left:8px">54%</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── 扫描完成 ───────── -->
+      <section class="page" id="page-complete">
+        <div class="complete-wrap">
+          <svg class="complete-mark" viewBox="0 0 24 24"><use href="#gc-circle-check"/></svg>
+          <div class="complete-title">扫描完成</div>
+          <div class="complete-sub">已检查 18,492 个目录，耗时 42.6 秒。默认未勾选任何条目。</div>
+
+          <div class="complete-big">发现 <span class="num">12</span><span class="unit">个疑似残留</span></div>
+
+          <div class="complete-grid">
+            <div class="scan-stat"><div class="sv num">18,492</div><div class="sl">已检查目录</div></div>
+            <div class="scan-stat"><div class="sv num">3</div><div class="sl">高概率残留</div></div>
+            <div class="scan-stat"><div class="sv num">9</div><div class="sl">需要人工确认</div></div>
+            <div class="scan-stat"><div class="sv num">8.6 GB</div><div class="sl">预计可释放</div></div>
+          </div>
+
+          <div class="banner banner-warning" style="margin-top:var(--sp-8);text-align:left;max-width:640px">
+            <svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-alert-triangle"/></svg>
+            <div>
+              <div class="banner-title">2 个关联来源未完成检查</div>
+              <div class="banner-body">Windows 服务与计划任务读取失败（可能因为没有管理员权限）。相关条目已标记为高风险并要求人工复核。</div>
+            </div>
+          </div>
+
+          <div class="complete-actions">
+            <button class="btn btn-primary lg" data-nav="results">
+              查看扫描结果<svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-arrow-right"/></svg>
+            </button>
+            <button class="btn btn-secondary" data-nav="scan">重新扫描</button>
+            <button class="btn btn-subtle" id="exportBtn2"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-export"/></svg>导出报告</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── 扫描结果 ───────── -->
+      <section class="page" id="page-results">
+        <div class="page-head">
+          <div class="ph-text">
+            <h1 class="page-title">扫描结果</h1>
+            <div class="page-sub" id="resultsSummary"></div>
+          </div>
+          <div class="ph-actions">
+            <button class="btn btn-subtle" id="exportBtn"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-export"/></svg>导出报告</button>
+            <button class="btn btn-secondary" data-nav="scan"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-scan"/></svg>重新扫描</button>
+          </div>
+        </div>
+
+        <div class="results-split">
+          <div class="results-left">
+            <div class="card flush">
+              <div style="padding:var(--sp-3) var(--sp-4)">
+                <div class="results-toolbar">
+                  <div class="segmented" id="filterTabs">
+                    <button data-filter="all" aria-selected="true">全部 <span class="cnt" id="cntAll"></span></button>
+                    <button data-filter="high" aria-selected="false">高可信度 <span class="cnt" id="cntHigh"></span></button>
+                    <button data-filter="review" aria-selected="false">需要复核 <span class="cnt" id="cntReview"></span></button>
+                    <button data-filter="protected" aria-selected="false">受保护 <span class="cnt" id="cntProtected"></span></button>
+                  </div>
+                  <span class="spacer"></span>
+                  <div class="rt-right">
+                    <div class="search"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-search"/></svg><input class="input" id="searchInput" placeholder="搜索名称或路径" style="width:200px"/></div>
+                    <div class="select"><select id="sortSelect"><option>按疑似残留度</option><option>按大小</option><option>按路径</option><option>按清理风险</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div>
+                  </div>
+                </div>
+              </div>
+              <div class="result-list" id="resultList"></div>
+              <div id="resultEmpty"></div>
+            </div>
+          </div>
+
+          <aside class="detail" id="detailPanel">
+            <div class="detail-empty empty" id="detailEmpty">
+              <svg class="gc-icon" style="width:48px;height:48px" viewBox="0 0 24 24"><use href="#gc-file-text"/></svg>
+              <div class="empty-title">选择一个条目</div>
+              <div class="empty-desc">点击左侧任意条目，查看它的检测依据、保护信号与推荐操作。</div>
+            </div>
+            <div id="detailContent" style="display:none"></div>
+          </aside>
+        </div>
+
+        <div class="action-bar" id="actionBar" style="display:none">
+          <span class="ab-summary" id="abSummary">已选 0 项 · 共 0 B</span>
+          <div class="ab-actions">
+            <button class="btn btn-subtle sm" id="selectNoneBtn">全部取消</button>
+            <button class="btn btn-subtle sm" id="selectLowRiskBtn">仅选低风险</button>
+            <button class="btn btn-primary" id="quarantineBtn">
+              <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-quarantine"/></svg>移入隔离区
+            </button>
+            <button class="btn btn-danger-subtle" id="permDeleteBtn">
+              <svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-trash"/></svg>永久删除
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── 隔离区 ───────── -->
+      <section class="page" id="page-quarantine">
+        <div class="page-head">
+          <div class="ph-text">
+            <h1 class="page-title">隔离区</h1>
+            <div class="page-sub">被隔离的目录仍然完好保存在这里，可以随时恢复到原始路径。</div>
+          </div>
+        </div>
+
+        <div class="q-summary">
+          <div class="metric"><div class="metric-label">隔离条目</div><div class="metric-value">3<span class="metric-unit">项</span></div></div>
+          <div class="metric"><div class="metric-label">占用空间</div><div class="metric-value">5.9<span class="metric-unit">GB</span></div></div>
+          <div class="metric"><div class="metric-label">保留天数</div><div class="metric-value">15<span class="metric-unit">天</span></div></div>
+          <div class="metric"><div class="metric-label">最早到期</div><div class="metric-value">12<span class="metric-unit">天后</span></div><div class="metric-sub">2026-10-20</div></div>
+        </div>
+
+        <div class="card flush">
+          <div class="card-head" style="padding:var(--sp-3) var(--sp-4);margin:0">
+            <span class="t-h3">条目</span>
+            <span class="spacer"></span>
+            <button class="btn btn-secondary sm" id="restoreBtn"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-restore"/></svg>恢复所选</button>
+            <button class="btn btn-danger-subtle sm" id="purgeBtn"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-trash"/></svg>永久删除</button>
+            <button class="btn btn-subtle sm">清理过期</button>
+            <button class="btn btn-subtle sm">导出清单</button>
+          </div>
+          <table class="table">
+            <thead><tr>
+              <th style="width:32px"></th><th>名称</th><th>原始路径</th><th class="num">大小</th>
+              <th>隔离时间</th><th class="num">剩余</th><th>状态</th><th style="width:96px"></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><label class="check"><input type="checkbox"/><span class="check-box"><svg viewBox="0 0 24 24"><use href="#gc-check"/></svg></span></label></td>
+                <td>ExampleApp</td><td class="path">D:\Program Files\ExampleApp</td>
+                <td class="num">1.42 GB</td><td class="num">2026-10-05 14:30</td><td class="num">12 天</td>
+                <td><span class="badge badge-accent">已隔离</span></td>
+                <td><button class="icon-btn sm" title="打开位置"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-folder-open"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><label class="check"><input type="checkbox"/><span class="check-box"><svg viewBox="0 0 24 24"><use href="#gc-check"/></svg></span></label></td>
+                <td>OldToolSuite</td><td class="path">E:\Software\OldToolSuite</td>
+                <td class="num">3.21 GB</td><td class="num">2026-10-03 09:12</td><td class="num">10 天</td>
+                <td><span class="badge badge-accent">已隔离</span></td>
+                <td><button class="icon-btn sm" title="打开位置"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-folder-open"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><label class="check"><input type="checkbox"/><span class="check-box"><svg viewBox="0 0 24 24"><use href="#gc-check"/></svg></span></label></td>
+                <td>BrowserHelper</td><td class="path">D:\Apps\BrowserHelper</td>
+                <td class="num">1.27 GB</td><td class="num">2026-09-28 21:04</td><td class="num">5 天</td>
+                <td><span class="badge badge-accent">已隔离</span></td>
+                <td><button class="icon-btn sm" title="打开位置"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-folder-open"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><label class="check disabled"><input type="checkbox" disabled/><span class="check-box"><svg viewBox="0 0 24 24"><use href="#gc-check"/></svg></span></label></td>
+                <td class="c-secondary">MediaConverter</td><td class="path">E:\Software\MediaConverter</td>
+                <td class="num c-secondary">742 MB</td><td class="num c-secondary">2026-09-22 18:41</td><td class="num c-tertiary">—</td>
+                <td><span class="badge badge-success"><svg viewBox="0 0 24 24"><use href="#gc-restore"/></svg>已恢复</span></td>
+                <td><button class="icon-btn sm" title="打开位置"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-folder-open"/></svg></button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding:var(--sp-3) var(--sp-4)">
+            <span class="t-caption c-tertiary">隔离区目录：<span style="font-family:var(--font-mono)">E:\CleanerQuarantine</span> · 过期条目不会自动删除，需手动清理。</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── 扫描记录 ───────── -->
+      <section class="page" id="page-history">
+        <div class="page-head">
+          <div class="ph-text">
+            <h1 class="page-title">扫描记录</h1>
+            <div class="page-sub">回看过去的每一次扫描结论，以及每一次处理操作。</div>
+          </div>
+        </div>
+
+        <div class="segmented" id="histTabs" style="margin-bottom:var(--sp-4)">
+          <button data-hist="scans" aria-selected="true">扫描记录</button>
+          <button data-hist="logs" aria-selected="false">操作日志</button>
+        </div>
+
+        <div id="histScans">
+          <div class="card flush">
+            <table class="table">
+              <thead><tr><th>扫描时间</th><th>范围</th><th class="num">耗时</th><th class="num">已检查</th><th class="num">发现</th><th class="num">已隔离</th><th style="width:120px"></th></tr></thead>
+              <tbody>
+                <tr><td class="num">2026-10-05 14:22</td><td>D:\ · E:\</td><td class="num">42.6 s</td><td class="num">18,492</td><td class="num">12</td><td class="num">3</td><td><button class="btn btn-subtle sm" data-nav="results">查看结果</button></td></tr>
+                <tr><td class="num">2026-09-22 18:30</td><td>D:\</td><td class="num">28.1 s</td><td class="num">11,204</td><td class="num">5</td><td class="num">1</td><td><button class="btn btn-subtle sm" data-nav="results">查看结果</button></td></tr>
+                <tr><td class="num">2026-09-01 10:05</td><td>C:\ · D:\ · E:\</td><td class="num">96.3 s</td><td class="num">41,880</td><td class="num">19</td><td class="num">0</td><td><button class="btn btn-subtle sm" data-nav="results">查看结果</button></td></tr>
+                <tr><td class="num">2026-08-14 21:47</td><td>E:\</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td><span class="badge badge-danger"><svg viewBox="0 0 24 24"><use href="#gc-circle-x"/></svg>失败</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="histLogs" style="display:none">
+          <div class="card flush" style="padding:var(--sp-4)">
+            <div class="log-line" style="margin-bottom:var(--sp-2)"><span class="lt">14:30:12</span> <span class="log-lvl success"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-circle-check"/></svg>成功</span> · Quarantine · <span class="path-mid">D:\Program Files\ExampleApp</span> · 1.42 GB</div>
+            <div class="log-line" style="margin-bottom:var(--sp-2)"><span class="lt">14:30:08</span> <span class="log-lvl info"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-info"/></svg>信息</span> · RestorePoint · 已创建系统还原点</div>
+            <div class="log-line" style="margin-bottom:var(--sp-2)"><span class="lt">14:29:51</span> <span class="log-lvl info"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-info"/></svg>信息</span> · Whitelist · 加入排除路径：<span class="path-mid">E:\Projects\Toolkit</span></div>
+            <div class="log-line" style="margin-bottom:var(--sp-2)"><span class="lt">14:22:03</span> <span class="log-lvl success"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-circle-check"/></svg>成功</span> · Scan · 扫描完成：发现 12 个疑似软件残留（高概率 3，待确认 9，受保护 1）</div>
+            <div class="log-line" style="margin-bottom:var(--sp-2)"><span class="lt">14:21:40</span> <span class="log-lvl warning"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-alert-triangle"/></svg>警告</span> · Scan · 关联来源读取失败：WindowsService, ScheduledTask</div>
+            <div class="log-line" style="margin-bottom:var(--sp-2)"><span class="lt">14:21:39</span> <span class="log-lvl warning"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-alert-triangle"/></svg>警告</span> · Scan · 未以管理员身份运行，判定偏保守</div>
+            <div class="log-line" style="margin-bottom:var(--sp-2)"><span class="lt">14:21:38</span> <span class="log-lvl info"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-info"/></svg>信息</span> · Scan · 开始扫描：根路径 2 个，最大层级 2</div>
+            <div class="log-line"><span class="lt">09:12:44</span> <span class="log-lvl error"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-circle-x"/></svg>错误</span> · Restore · 恢复失败：原路径已存在同名目录 <span class="path-mid">E:\Software\MediaConverter</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── 设置 ───────── -->
+      <section class="page" id="page-settings">
+        <div class="page-head">
+          <div class="ph-text">
+            <h1 class="page-title">设置</h1>
+            <div class="page-sub">调整判定规则、保护范围与外观。修改会立即保存。</div>
+          </div>
+        </div>
+
+        <div class="settings-split">
+          <nav class="settings-nav" id="settingsNav">
+            <button class="nav-item active" data-pane="general">常规</button>
+            <button class="nav-item" data-pane="scan">扫描</button>
+            <button class="nav-item" data-pane="protect">保护与白名单</button>
+            <button class="nav-item" data-pane="quarantine">隔离区</button>
+            <button class="nav-item" data-pane="appearance">外观</button>
+            <button class="nav-item" data-pane="advanced">高级</button>
+          </nav>
+
+          <div>
+            <!-- 常规 -->
+            <div class="settings-pane active" data-pane="general">
+              <div class="card">
+                <div class="card-head"><span class="t-h3">常规</span></div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">默认清理动作</div><div class="sr-desc">永远不会被自动执行，只是操作栏里的默认值。</div></div>
+                  <div class="sr-ctrl"><div class="select"><select><option>移到隔离区（推荐）</option><option>删除到回收站</option><option>永久删除</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">清理前创建系统还原点</div><div class="sr-desc">依赖 Windows 系统保护已启用；失败不阻断清理。</div></div>
+                  <div class="sr-ctrl"><label class="switch"><input type="checkbox" checked/><span class="switch-track"><span class="switch-thumb"></span></span></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">启动时自动检查更新</div><div class="sr-desc">只检查版本号，不会自动下载或安装。</div></div>
+                  <div class="sr-ctrl"><label class="switch"><input type="checkbox" checked/><span class="switch-track"><span class="switch-thumb"></span></span></label></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 扫描 -->
+            <div class="settings-pane" data-pane="scan">
+              <div class="card">
+                <div class="card-head"><span class="t-h3">扫描</span></div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">最大扫描层级</div><div class="sr-desc">层级越深越慢，但能发现嵌套更深的安装目录。</div></div>
+                  <div class="sr-ctrl"><div class="select"><select><option>1 层</option><option selected>2 层（推荐）</option><option>3 层</option><option>4 层</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">包含隐藏目录</div><div class="sr-desc">开启后会扫描隐藏目录，但系统关键路径仍会被硬保护。</div></div>
+                  <div class="sr-ctrl"><label class="switch"><input type="checkbox"/><span class="switch-track"><span class="switch-thumb"></span></span></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">软件判定阈值</div><div class="sr-desc">软件特征分低于该值的目录不会被当作软件目录。</div></div>
+                  <div class="sr-ctrl"><div class="select"><select><option>20（宽松）</option><option>35</option><option selected>50（推荐）</option><option>70（严格）</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">默认扫描盘符</div><div class="sr-desc">打开扫描页时自动勾选的磁盘。</div></div>
+                  <div class="sr-ctrl"><div class="row g8"><span class="tag">D:</span><span class="tag">E:</span><span class="tag">F:</span></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 保护与白名单 -->
+            <div class="settings-pane" data-pane="protect">
+              <div class="card">
+                <div class="card-head"><span class="t-h3">保护与白名单</span></div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">允许处理高风险条目</div><div class="sr-desc">关闭时，高风险条目会被自动跳过并记入日志。</div></div>
+                  <div class="sr-ctrl"><label class="switch"><input type="checkbox"/><span class="switch-track"><span class="switch-thumb"></span></span></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">系统关键路径硬保护</div><div class="sr-desc">Windows / System32 / ProgramData / AppData / Users 等路径在任何入口都会被拒绝处理。不可关闭。</div></div>
+                  <div class="sr-ctrl"><span class="badge badge-success"><svg viewBox="0 0 24 24"><use href="#gc-lock"/></svg>始终开启</span></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info">
+                    <div class="sr-name">排除路径</div>
+                    <div class="sr-desc">这些路径及其子目录永不参与任何删除操作。</div>
+                    <div class="tag-list">
+                      <span class="tag">E:\Projects\Toolkit<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag">D:\Games<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag">F:\Backup\2025<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag" style="border-style:dashed"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-plus"/></svg>添加</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info">
+                    <div class="sr-name">保留关键词</div>
+                    <div class="sr-desc">路径任意层级包含这些关键词即被排除。</div>
+                    <div class="tag-list">
+                      <span class="tag">SteamLibrary<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag">Epic<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag">Projects<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag">Backup<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag">工作<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag">项目<svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-close"/></svg></span>
+                      <span class="tag" style="border-style:dashed"><svg class="gc-icon i12" viewBox="0 0 24 24"><use href="#gc-plus"/></svg>添加</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 隔离区 -->
+            <div class="settings-pane" data-pane="quarantine">
+              <div class="card">
+                <div class="card-head"><span class="t-h3">隔离区</span></div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">隔离区目录</div><div class="sr-desc">默认自动选择剩余空间最大的非系统盘。</div></div>
+                  <div class="sr-ctrl"><div class="row g8" style="width:100%"><input class="input" value="E:\CleanerQuarantine" readonly style="font-family:var(--font-mono);font-size:var(--fs-mono-sm)"/><button class="icon-btn bordered"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-folder-open"/></svg></button></div></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">保留天数</div><div class="sr-desc">7 ~ 30 天。到期不会自动删除，需手动清理。</div></div>
+                  <div class="sr-ctrl"><div class="select"><select><option>7 天</option><option selected>15 天</option><option>30 天</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">当前占用</div><div class="sr-desc">3 项 · 5.9 GB</div></div>
+                  <div class="sr-ctrl"><button class="btn btn-secondary sm" data-nav="quarantine">打开隔离区</button></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 外观 -->
+            <div class="settings-pane" data-pane="appearance">
+              <div class="card">
+                <div class="card-head"><span class="t-h3">外观</span></div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">主题模式</div><div class="sr-desc">Light 与 Dark 使用同一套 Design Token，不是简单反色。此设置在原型中可实时切换。</div></div>
+                  <div class="sr-ctrl" style="width:auto">
+                    <div class="theme-options" id="themeOptions">
+                      <button class="theme-opt" data-theme-set="system"><svg class="gc-icon i24" viewBox="0 0 24 24"><use href="#gc-monitor"/></svg>跟随系统</button>
+                      <button class="theme-opt" data-theme-set="light"><svg class="gc-icon i24" viewBox="0 0 24 24"><use href="#gc-sun"/></svg>浅色</button>
+                      <button class="theme-opt" data-theme-set="dark"><svg class="gc-icon i24" viewBox="0 0 24 24"><use href="#gc-moon"/></svg>深色</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">减少动画</div><div class="sr-desc">关闭所有过渡与动效（跟随系统设置时自动开启）。</div></div>
+                  <div class="sr-ctrl"><label class="switch"><input type="checkbox"/><span class="switch-track"><span class="switch-thumb"></span></span></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">界面字体</div><div class="sr-desc">Segoe UI Variable（Windows 11） / Segoe UI（Windows 10）。</div></div>
+                  <div class="sr-ctrl"><div class="select"><select><option selected>系统默认</option><option>Segoe UI</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 高级 -->
+            <div class="settings-pane" data-pane="advanced">
+              <div class="card">
+                <div class="card-head"><span class="t-h3">高级</span></div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">单目录文件统计上限</div><div class="sr-desc">防止超大目录拖慢扫描，超出部分不参与统计。</div></div>
+                  <div class="sr-ctrl"><input class="input num" value="20000" style="text-align:right"/></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">扫描并发度</div><div class="sr-desc">1 ~ 4，越高越快但占用越多磁盘 IO。</div></div>
+                  <div class="sr-ctrl"><div class="select"><select><option>1</option><option>2（推荐）</option><option>3</option><option>4</option></select><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-chevron-down"/></svg></div></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">日志与配置目录</div><div class="sr-desc">按天写入 JSONL，可在扫描记录中查看。</div></div>
+                  <div class="sr-ctrl"><button class="btn btn-secondary sm">打开目录</button></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-info"><div class="sr-name">恢复默认设置</div><div class="sr-desc">不会删除隔离区内容与白名单。</div></div>
+                  <div class="sr-ctrl"><button class="btn btn-danger-subtle sm">恢复默认</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── 关于 ───────── -->
+      <section class="page" id="page-about">
+        <div class="page-head">
+          <div class="ph-text">
+            <h1 class="page-title">关于</h1>
+            <div class="page-sub">GhostCleaner 是一个专门分析 Windows 软件残留的工具。</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="about-hero">
+            <svg class="gc-icon" viewBox="0 0 48 48"><use href="#gc-brand"/></svg>
+            <div>
+              <div class="about-name">GhostCleaner</div>
+              <div class="about-tag">版本 0.1.0 · Windows 软件残留分析工具</div>
+            </div>
+            <span class="spacer"></span>
+            <button class="btn btn-secondary"><svg class="gc-icon i16" viewBox="0 0 24 24"><use href="#gc-external-link"/></svg>项目主页</button>
+          </div>
+          <div class="card-foot" style="margin-top:var(--sp-5)">
+            <span class="t-caption c-tertiary">MIT License · .NET 8 / WPF · 内置 76 项单元测试</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="t-h3">它不做什么</span></div>
+          <div class="safety-list">
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">不做"一键清理"</div><div class="sd">没有体检分数，没有一键加速，不会替你做决定。</div></div></div>
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">不输出"删除"建议</div><div class="sd">扫描器只输出"建议人工确认后隔离"，永远不输出"删除"。</div></div></div>
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">不隐藏不确定性</div><div class="sd">关联来源读取失败、扫描不完整、判定不可靠都会明确告诉你。</div></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="t-h3">安全设计</span></div>
+          <div class="safety-list">
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">默认不删除任何东西</div><div class="sd">扫描只做检测，结果条目默认全部未勾选。</div></div></div>
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">默认动作是可恢复的隔离</div><div class="sd">目录被移动到隔离区而非删除，可随时恢复到原始路径。</div></div></div>
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">永久删除需要输入确认文字</div><div class="sd">必须手动输入「永久删除」，按钮才允许执行。</div></div></div>
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">系统关键路径硬保护</div><div class="sd">Windows / System32 / ProgramData / AppData / Users 等路径在任何入口都会被拒绝。</div></div></div>
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">多源判定而不是只看注册表</div><div class="sd">9 类来源全部查不到引用，才会被判定为疑似残留。</div></div></div>
+            <div class="safety-item"><svg class="gc-icon" viewBox="0 0 24 24"><use href="#gc-check"/></svg><div><div class="st">白名单优先</div><div class="sd">排除路径与保留关键词命中的目录永不参与删除。</div></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="t-h3">两个不同的问题</span></div>
+          <div class="verdict-grid" style="margin-top:0">
+            <div class="verdict-cell">
+              <div class="vl">疑似残留度</div>
+              <div class="t-sm c-secondary" style="margin-top:4px">我们有多大把握认为它是残留？与"能不能删"无关。</div>
+              <div class="confidence conf-vhp lg" style="margin-top:var(--sp-3)">
+                <span class="confidence-track"><span class="confidence-fill" style="width:92%"></span></span>
+                <span class="confidence-value">92%</span>
+              </div>
+            </div>
+            <div class="verdict-cell">
+              <div class="vl">清理风险</div>
+              <div class="t-sm c-secondary" style="margin-top:4px">如果清理它，可能有多危险？残留度高 ≠ 可以清理。</div>
+              <div class="row g8" style="margin-top:var(--sp-3)">
+                <span class="badge badge-danger"><svg viewBox="0 0 24 24"><use href="#gc-alert-circle"/></svg>高</span>
+                <span class="t-caption c-tertiary">检测到用户配置与近期修改</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="dialog-layer" id="dialogLayer"></div>
+<div class="toast-layer" id="toastLayer"></div>
+<div class="proto-note">UI 0.1 可点击原型 · 右上角按钮切换 Light / Dark · 也可在「设置 → 外观」切换</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

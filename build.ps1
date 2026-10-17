@@ -1,4 +1,4 @@
-# WinCleaner build / test / run / publish helper
+# GhostCleaner build / test / run / publish helper
 # The .NET 8 SDK on this machine lives at D:\DevTools\dotnet (not on C:), so PATH is set explicitly.
 
 param(
@@ -37,19 +37,19 @@ function Invoke-Step {
 
 switch ($Target) {
     'build' {
-        Invoke-Step 'Build solution' { dotnet build WinCleaner.sln -c $Configuration --nologo }
+        Invoke-Step 'Build solution' { dotnet build GhostCleaner.sln -c $Configuration --nologo }
     }
     'test' {
-        Invoke-Step 'Run unit tests' { dotnet test WinCleaner.sln -c $Configuration --nologo }
+        Invoke-Step 'Run unit tests' { dotnet test GhostCleaner.sln -c $Configuration --nologo }
     }
     'run' {
         Invoke-Step 'Start WPF app (requires elevation, UAC prompt)' {
-            dotnet run --project src/WinCleaner.App/WinCleaner.App.csproj -c $Configuration
+            dotnet run --project src/GhostCleaner.App/GhostCleaner.App.csproj -c $Configuration
         }
     }
     'publish' {
         Invoke-Step 'Publish single-folder build' {
-            dotnet publish src/WinCleaner.App/WinCleaner.App.csproj -c $Configuration -o (Join-Path $root 'publish')
+            dotnet publish src/GhostCleaner.App/GhostCleaner.App.csproj -c $Configuration -o (Join-Path $root 'publish')
         }
         Write-Host "Published to $root\publish" -ForegroundColor Green
     }

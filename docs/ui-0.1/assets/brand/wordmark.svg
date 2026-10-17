@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 208 40" width="208" height="40" fill="none" role="img" aria-label="GhostCleaner">
+  <title>GhostCleaner — 横版字标</title>
+  <g transform="translate(0,4)">
+    <path d="M16 2 L27 6 V15 C27 22 22.5 25.5 16 27.5 C9.5 25.5 5 22 5 15 V6 Z"
+          fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>
+    <path d="M10.5 19 V13.5 a5.5 5.5 0 0 1 11 0 V19 q -1.8 3 -3.7 0 q -1.8 3 -3.6 0 q -1.8 3 -3.7 0 Z"
+          fill="currentColor"/>
+  </g>
+  <text x="42" y="27" font-family="Segoe UI Variable Display, Segoe UI, Microsoft YaHei UI, sans-serif"
+        font-size="21" font-weight="600" letter-spacing="-0.2" fill="currentColor">GhostCleaner</text>
+</svg>

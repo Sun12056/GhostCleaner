@@ -1,0 +1,31 @@
+<Application x:Class="GhostCleaner.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:GhostCleaner.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- 1. UI 0.1 遗留资源（仅供已移出 IA 的旧页面解析，避免编译期找不到资源） -->
+                <ResourceDictionary Source="Styles/Colors.xaml" />
+                <ResourceDictionary Source="Styles/Controls.xaml" />
+
+                <!-- 2. Design Tokens（与主题无关） -->
+                <ResourceDictionary Source="Styles/Tokens/Tokens.xaml" />
+
+                <!-- 3. 主题字典：运行时由 ThemeService 整本替换为 Light / Dark -->
+                <ResourceDictionary Source="Styles/Tokens/Theme.Light.xaml" />
+
+                <!-- 4. 图标 -->
+                <ResourceDictionary Source="Icons/IconSet.xaml" />
+
+                <!-- 5. 新控件样式（放在遗留样式之后，隐式样式覆盖旧外观） -->
+                <ResourceDictionary Source="Styles/Controls/Gc.Primitives.xaml" />
+                <ResourceDictionary Source="Styles/Controls/Gc.Buttons.xaml" />
+                <ResourceDictionary Source="Styles/Controls/Gc.Inputs.xaml" />
+                <ResourceDictionary Source="Styles/Controls/Gc.DataGrid.xaml" />
+                <ResourceDictionary Source="Styles/Controls/Gc.Navigation.xaml" />
+                <ResourceDictionary Source="Styles/Controls/Gc.Toast.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

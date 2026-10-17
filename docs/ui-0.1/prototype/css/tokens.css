@@ -1,0 +1,210 @@
+/* ============================================================
+   GhostCleaner Design Tokens v0.1
+   单一事实源 —— 与 docs/ui-0.1/07-DesignTokens.md 一一对应
+   Light = :root ；Dark = [data-theme="dark"]
+   ============================================================ */
+
+:root {
+  /* ---- 中性灰阶 ---- */
+  --n-0:   #FFFFFF;
+  --n-25:  #FBFCFD;
+  --n-50:  #F6F8FA;
+  --n-75:  #F1F4F8;
+  --n-100: #EEF1F5;
+  --n-150: #E9EDF2;
+  --n-200: #E4E8EE;
+  --n-300: #D3D9E2;
+  --n-400: #AEB7C4;
+  --n-500: #7C8798;
+  --n-600: #5A6474;
+  --n-700: #424B59;
+  --n-800: #2A3140;
+  --n-900: #14181F;
+
+  /* ---- 强调色 Indigo ---- */
+  --accent-50:  #EEF2FE;
+  --accent-100: #DDE5FD;
+  --accent-200: #C0CDF9;
+  --accent-300: #9FB2F4;
+  --accent-400: #6C86EA;
+  --accent-500: #3F5FE0;
+  --accent-600: #3350C8;
+  --accent-700: #2A41A4;
+  --accent-800: #22347F;
+
+  --accent-default: var(--accent-500);
+  --accent-hover:   var(--accent-600);
+  --accent-pressed: var(--accent-700);
+  --accent-bg:      var(--accent-50);
+  --accent-bg-hover:var(--accent-100);
+  --accent-border:  var(--accent-200);
+  --accent-fg:      var(--accent-600);
+  --text-on-accent: #FFFFFF;
+
+  /* ---- 语义色 ---- */
+  --success-bg:     #E7F4EC;
+  --success-border: #B9DFC8;
+  --success-default:#1F8A50;
+  --success-fg:     #156B3E;
+
+  --warning-bg:     #FDF2E2;
+  --warning-border: #F0D3A2;
+  --warning-default:#B8710F;
+  --warning-fg:     #8F5708;
+
+  --danger-bg:      #FCEBE9;
+  --danger-border:  #F2C3BE;
+  --danger-default: #C8342B;
+  --danger-hover:   #A82A22;
+  --danger-fg:      #96271F;
+
+  /* ---- 疑似残留度（单一靛蓝色相强度） ---- */
+  --conf-vhp:  var(--accent-500);
+  --conf-hp:   var(--accent-400);
+  --conf-sus:  var(--accent-200);
+  --conf-norm: var(--n-300);
+  --conf-track: var(--n-200);
+  --conf-fg:   var(--accent-600);
+
+  /* ---- 表面 ---- */
+  --bg-canvas:  #F6F8FA;
+  --bg-sidebar: #F1F4F8;
+  --bg-surface: #FFFFFF;
+  --bg-sunken:  #EEF1F5;
+  --bg-hover:   #E9EDF2;
+  --bg-active:  var(--accent-50);
+  --bg-scrim:   rgba(20, 24, 31, .40);
+
+  /* ---- 边框 ---- */
+  --border-subtle:  #E4E8EE;
+  --border-default: #D3D9E2;
+  --border-strong:  #AEB7C4;
+  --border-focus:   var(--accent-500);
+
+  /* ---- 文字 ---- */
+  --text-primary:   #14181F;
+  --text-secondary: #5A6474;
+  --text-tertiary:  #7C8798;
+  --text-disabled:  #AEB7C4;
+  --text-link:      var(--accent-600);
+
+  /* ---- 阴影 ---- */
+  --el-1: 0 4px 12px rgba(16,24,40,.10), 0 1px 3px rgba(16,24,40,.08);
+  --el-2: 0 16px 40px rgba(16,24,40,.16), 0 2px 8px rgba(16,24,40,.10);
+
+  /* ---- 字体 ---- */
+  --font-ui: "Segoe UI Variable Display", "Segoe UI Variable Text", "Segoe UI",
+             "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "Microsoft YaHei Mono", monospace;
+
+  /* ---- 字号 / 行高 ---- */
+  --fs-display: 32px;  --lh-display: 40px;
+  --fs-title:   24px;  --lh-title:   32px;
+  --fs-h1:      20px;  --lh-h1:      28px;
+  --fs-h2:      16px;  --lh-h2:      24px;
+  --fs-h3:      14px;  --lh-h3:      20px;
+  --fs-body:    14px;  --lh-body:    20px;
+  --fs-body-sm: 13px;  --lh-body-sm: 18px;
+  --fs-caption: 12px;  --lh-caption: 16px;
+  --fs-overline:11px;  --lh-overline:14px;
+  --fs-mono:    13px;  --lh-mono:    18px;
+  --fs-mono-sm: 12px;  --lh-mono-sm: 16px;
+  --fs-metric:  28px;  --lh-metric:  32px;
+  --fs-metric-lg:36px; --lh-metric-lg:40px;
+
+  /* ---- 间距 ---- */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px;
+  --sp-5:20px; --sp-6:24px; --sp-8:32px;
+  --sp-10:40px; --sp-12:48px; --sp-16:64px;
+
+  /* ---- 圆角 ---- */
+  --radius-xs: 4px; --radius-sm: 6px; --radius-md: 8px;
+  --radius-lg: 12px; --radius-pill: 999px;
+
+  /* ---- 描边 ---- */
+  --bw-default: 1px; --bw-strong: 2px; --bw-accent: 3px;
+
+  /* ---- 动效 ---- */
+  --dur-fast: 120ms; --dur-normal: 200ms; --dur-slow: 320ms;
+  --ease-standard: cubic-bezier(.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, .2, 1);
+  --ease-accelerate: cubic-bezier(.4, 0, 1, 1);
+
+  /* ---- 布局 ---- */
+  --layout-sidebar: 232px;
+  --layout-detail: 420px;
+  --layout-actionbar: 64px;
+  --layout-content-max: 1400px;
+}
+
+[data-theme="dark"] {
+  --n-0:   #000000;
+  --n-25:  #0A0C10;
+  --n-50:  #101318;
+  --n-75:  #0C0F13;
+  --n-100: #14171D;
+  --n-150: #181C23;
+  --n-200: #1F242C;
+  --n-300: #30363F;
+  --n-400: #464E59;
+  --n-500: #6E7784;
+  --n-600: #A2AAB8;
+  --n-700: #C2C9D4;
+  --n-800: #DDE2EA;
+  --n-900: #E7EAEF;
+
+  --accent-50:  #171E33;
+  --accent-100: #1B2540;
+  --accent-200: #24305A;
+  --accent-300: #33437A;
+  --accent-400: #5B77E0;
+  --accent-500: #6C86EA;
+  --accent-600: #8AA0F2;
+  --accent-700: #A5B6F7;
+  --accent-800: #C4CFFA;
+
+  --accent-fg: #9DB0F5;
+  --text-on-accent: #0E1116;
+
+  --success-bg:     #14231B;
+  --success-border: #24462F;
+  --success-default:#3CA46B;
+  --success-fg:     #6FD09B;
+
+  --warning-bg:     #2A2114;
+  --warning-border: #4E3C1E;
+  --warning-default:#D6912C;
+  --warning-fg:     #E9B571;
+
+  --danger-bg:      #2C1917;
+  --danger-border:  #552825;
+  --danger-default: #E0524A;
+  --danger-hover:   #C7413A;
+  --danger-fg:      #F08A84;
+
+  --conf-fg: #9DB0F5;
+
+  --bg-canvas:  #101318;
+  --bg-sidebar: #0C0F13;
+  --bg-surface: #181C23;
+  --bg-sunken:  #14171D;
+  --bg-hover:   #1F242C;
+  --bg-scrim:   rgba(0, 0, 0, .60);
+
+  --border-subtle:  #232830;
+  --border-default: #30363F;
+  --border-strong:  #464E59;
+
+  --text-primary:   #E7EAEF;
+  --text-secondary: #A2AAB8;
+  --text-tertiary:  #6E7784;
+  --text-disabled:  #545C68;
+  --text-link:      #9DB0F5;
+
+  --el-1: 0 4px 12px rgba(0,0,0,.50), 0 1px 3px rgba(0,0,0,.40);
+  --el-2: 0 16px 40px rgba(0,0,0,.65), 0 2px 8px rgba(0,0,0,.50);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-normal: 0ms; --dur-slow: 0ms; }
+}

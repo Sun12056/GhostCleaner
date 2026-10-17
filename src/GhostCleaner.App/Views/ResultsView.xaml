@@ -1,0 +1,848 @@
+<UserControl x:Class="GhostCleaner.App.Views.ResultsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:GhostCleaner.App.Converters"
+             xmlns:vm="clr-namespace:GhostCleaner.App.ViewModels"
+             xmlns:core="clr-namespace:GhostCleaner.Core.Models;assembly=GhostCleaner.Core"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <conv:DetectionLevelConverter x:Key="DetectionText" />
+        <conv:ConfidenceToBrushConverter x:Key="ConfidenceBrush" />
+        <conv:PercentToWidthConverter x:Key="ConfidenceWidth" />
+        <conv:RiskToForegroundConverter x:Key="RiskFg" />
+        <conv:RiskToBackgroundConverter x:Key="RiskBg" />
+        <conv:RiskToBorderConverter x:Key="RiskBorder" />
+        <conv:RiskToIconConverter x:Key="RiskIcon" />
+        <conv:EnumToBooleanConverter x:Key="EnumToBool" EnumType="{x:Type vm:RiskFilterOption}" />
+        <conv:NullToVisibilityConverter x:Key="NullToVisibility" />
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <conv:InverseBoolConverter x:Key="InverseBool" />
+        <conv:IntToVisibilityConverter x:Key="IntToVisibility" />
+
+        <!-- 结果项 -->
+        <DataTemplate x:Key="ResultItemTemplate">
+            <Grid MinHeight="72" Margin="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <CheckBox Grid.Column="0" VerticalAlignment="Center" Margin="0"
+                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                          IsEnabled="{Binding IsExcluded, Converter={StaticResource InverseBool}}" />
+
+                <StackPanel Grid.Column="1" Margin="12,0,16,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="14"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource Brush.Text.Primary}" />
+                    <TextBlock Text="{Binding Path}" Style="{StaticResource GcMono}" Margin="0,2,0,0" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Border Style="{StaticResource GcConfidenceTrack}">
+                            <Border Width="{Binding ConfidenceScore, Converter={StaticResource ConfidenceWidth}, ConverterParameter=96}"
+                                    Height="4" CornerRadius="{StaticResource Radius.Pill}"
+                                    HorizontalAlignment="Left"
+                                    Background="{Binding ConfidenceLevel, Converter={StaticResource ConfidenceBrush}}" />
+                        </Border>
+                        <TextBlock Text="{Binding ConfidenceLevel, Converter={StaticResource DetectionText}, ConverterParameter=short}"
+                                   FontSize="12" Margin="8,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brush.Text.Secondary}" />
+                        <TextBlock Text="{Binding ConfidenceScore, StringFormat={}({0})}"
+                                   FontSize="12" Margin="4,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brush.Text.Tertiary}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SizeText}" FontSize="13" FontWeight="SemiBold"
+                               HorizontalAlignment="Right" />
+                    <WrapPanel Margin="0,6,-4,0" HorizontalAlignment="Right">
+
+                        <!-- 近 90 天仍有文件活动：最强反向信号，优先于任何置信度。
+                             直接读 Core 的 RecentModifiedFileCount90，徽标上带文件数量级 -->
+                        <Border Style="{StaticResource GcBadge.Warning}" Margin="4,0,0,0"
+                                Visibility="{Binding RecentModifiedFileCount90, Converter={StaticResource IntToVisibility}}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="12" Height="12" Stretch="Uniform"
+                                      Data="{StaticResource Icon.Clock}"
+                                      Fill="Transparent" Stroke="{DynamicResource Brush.Warning.Fg}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                <TextBlock Margin="4,0,0,0" Style="{StaticResource GcBadgeText.Warning}">
+                                    <Run Text="近 90 天 " />
+                                    <Run Text="{Binding RecentModifiedFileCount90, Mode=OneWay}" />
+                                    <Run Text=" 个文件有修改" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 自带卸载器：应优先走正规卸载 -->
+                        <Border Style="{StaticResource GcBadge}" Margin="4,0,0,0"
+                                Visibility="{Binding HasUninstaller, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="12" Height="12" Stretch="Uniform"
+                                      Data="{StaticResource Icon.ExternalLink}"
+                                      Fill="Transparent" Stroke="{DynamicResource Brush.Text.Secondary}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                <TextBlock Text="自带卸载器" Style="{StaticResource GcBadgeText}" Margin="4,0,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GcBadge}" Margin="4,0,0,0"
+                                Background="{Binding Risk, Converter={StaticResource RiskBg}}"
+                                BorderBrush="{Binding Risk, Converter={StaticResource RiskBorder}}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="12" Height="12" Stretch="Uniform"
+                                      Data="{Binding Risk, Converter={StaticResource RiskIcon}}"
+                                      Fill="Transparent"
+                                      Stroke="{Binding Risk, Converter={StaticResource RiskFg}}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                <TextBlock Text="{Binding RiskText}" Margin="4,0,0,0"
+                                           Foreground="{Binding Risk, Converter={StaticResource RiskFg}}"
+                                           Style="{StaticResource GcBadgeText}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GcBadge}" Margin="4,0,0,0"
+                                Visibility="{Binding IsProtected, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="12" Height="12" Stretch="Uniform"
+                                      Data="{StaticResource Icon.ShieldCheck}"
+                                      Fill="Transparent" Stroke="{DynamicResource Brush.Success.Fg}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                <TextBlock Text="已保护" Style="{StaticResource GcBadgeText.Success}" Margin="4,0,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GcBadge}" Margin="4,0,0,0"
+                                Visibility="{Binding IsExcluded, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="12" Height="12" Stretch="Uniform"
+                                      Data="{StaticResource Icon.EyeOff}"
+                                      Fill="Transparent" Stroke="{DynamicResource Brush.Text.Secondary}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                <TextBlock Text="已排除" Style="{StaticResource GcBadgeText}" Margin="4,0,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GcBadge.Warning}" Margin="4,0,0,0"
+                                Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="12" Height="12" Stretch="Uniform"
+                                      Data="{StaticResource Icon.AlertTriangle}"
+                                      Fill="Transparent" Stroke="{DynamicResource Brush.Warning.Fg}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                <TextBlock Text="需注意" Style="{StaticResource GcBadgeText.Warning}" Margin="4,0,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <!-- 页面标题 -->
+        <Grid Margin="0,0,0,24">
+            <StackPanel>
+                <TextBlock Text="扫描结果" Style="{StaticResource GcPageTitle}" />
+                <TextBlock Text="{Binding ResultSummaryText}" Style="{StaticResource GcPageSub}" Margin="0,4,0,0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource GcButton.Subtle}" Margin="0,0,8,0"
+                        Content="导出报告" Command="{Binding ExportCommand}" />
+                <Button Style="{StaticResource GcButton}"
+                        Content="重新扫描" Command="{Binding RestartScanCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- ==================== 观测事实优先于置信度 ==================== -->
+        <Border Style="{StaticResource GcCard}" Margin="0,0,0,16"
+                Visibility="{Binding HasUncertaintySignals, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Text="在看待置信度之前，先看这几点" Style="{StaticResource GcH3}" />
+                <TextBlock Text="下面是实际观测到的情况，比置信度分数更可靠 —— 置信度只是推断，可能出错。"
+                           Style="{StaticResource GcCaption}" Margin="0,4,0,0" TextWrapping="Wrap" />
+
+                <!-- Core 提议的聚合提示。
+                     注意：最后那句覆盖说明无条件显示 —— 只在有冲突时显示，
+                     等于暗示"没有提示 = 安全"，这比不加提示更危险（Core 2026-10-17 已指出）。 -->
+                <Border Style="{StaticResource GcSunken}" Padding="12" Margin="0,16,0,0"
+                        Visibility="{Binding HasStrongDetectionGroup, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding StrongDetectionGroupText}" FontSize="13"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource Brush.Text.Primary}" />
+                        <TextBlock Text="{Binding ConflictCoverageNote}" FontSize="12" TextWrapping="Wrap"
+                                   Margin="0,6,0,0" Foreground="{DynamicResource Brush.Warning.Fg}" />
+                    </StackPanel>
+                </Border>
+
+                <Grid Margin="0,16,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource GcSunken}" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="近 90 天有文件活动" Style="{StaticResource GcOverline}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="{Binding RecentActivityCount}" FontSize="20" FontWeight="SemiBold" />
+                                <TextBlock Text="项" FontSize="13" VerticalAlignment="Bottom" Margin="4,0,0,3"
+                                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding MaxRecentFileCount90, StringFormat={}最活跃的一项修改了 {0} 个文件}"
+                                       Style="{StaticResource GcCaption}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource GcSunken}" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="自带卸载器" Style="{StaticResource GcOverline}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="{Binding UninstallerCount}" FontSize="20" FontWeight="SemiBold" />
+                                <TextBlock Text="项" FontSize="13" VerticalAlignment="Bottom" Margin="4,0,0,3"
+                                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+                            </StackPanel>
+                            <TextBlock Text="应优先走正规卸载" Style="{StaticResource GcCaption}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="4" Style="{StaticResource GcSunken}" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="未能确认是否正在运行" Style="{StaticResource GcOverline}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="{Binding UncertainProcessCount}" FontSize="20" FontWeight="SemiBold" />
+                                <TextBlock Text="项" FontSize="13" VerticalAlignment="Bottom" Margin="4,0,0,3"
+                                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+                            </StackPanel>
+                            <TextBlock Text="这是不确定，不是可清理" Style="{StaticResource GcCaption}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- 全部条目共有的不确定性：页面级说一次，不在每一项里重复（47/47 的重复等于没有信息量） -->
+                <Border Style="{StaticResource GcBanner}" Margin="0,16,0,0"
+                        Visibility="{Binding HasGlobalUncertaintyMessages, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <TextBlock Text="本次扫描的共性限制（不是某一条的问题）" FontWeight="SemiBold" FontSize="13"
+                                   Foreground="{DynamicResource Brush.Warning.Fg}" />
+                        <TextBlock Text="下列不确定信号每个条目都有，因此只在这里说一次，不再逐条重复。"
+                                   FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"
+                                   Foreground="{DynamicResource Brush.Text.Secondary}" />
+                        <ItemsControl ItemsSource="{Binding GlobalUncertaintyMessages}" Margin="0,2,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" FontSize="12" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- ==================== 未提权警告：真实误删风险，不是"结果不完整" ==================== -->
+        <Border Margin="0,0,0,16" Padding="14,10"
+                CornerRadius="{StaticResource Radius.SM}"
+                BorderThickness="1"
+                Background="{DynamicResource Brush.Warning.Bg}"
+                BorderBrush="{DynamicResource Brush.Warning.Border}"
+                Visibility="{Binding HasElevationRisk, Converter={StaticResource BoolToVisibility}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Path Grid.Column="0" Width="18" Height="18" Stretch="Uniform" Margin="0,2,12,0"
+                      VerticalAlignment="Top"
+                      Data="{StaticResource Icon.AlertTriangle}"
+                      Fill="Transparent"
+                      Stroke="{DynamicResource Brush.Warning.Fg}"
+                      StrokeThickness="1.75"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="未以管理员身份运行 —— 正在使用的软件可能被误判为残留"
+                               FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Warning.Fg}" />
+                    <TextBlock Text="{Binding ElevationWarningText}" FontSize="12" TextWrapping="Wrap"
+                               Margin="0,4,0,0"
+                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+                    <TextBlock Text="{Binding ElevationRestrictionText}" FontSize="12" TextWrapping="Wrap"
+                               Margin="0,2,0,0" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Warning.Fg}" />
+                </StackPanel>
+
+                <Button Grid.Column="2" Style="{StaticResource GcButton.SM}" VerticalAlignment="Center"
+                        Margin="12,0,0,0"
+                        Content="以管理员身份重启" Command="{Binding RestartAsAdminCommand}" />
+            </Grid>
+        </Border>
+
+        <!-- ==================== 关联采集源健康度（扫描不完整时必须显式提示） ==================== -->
+        <Border Margin="0,0,0,16" Padding="14,10"
+                Visibility="{Binding HasAssociationHealth, Converter={StaticResource BoolToVisibility}}"
+                CornerRadius="{StaticResource Radius.SM}"
+                BorderThickness="1">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource GcCard}">
+                    <Setter Property="Background" Value="{DynamicResource Brush.Success.Bg}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success.Border}" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasAssociationHealthIssue}" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource Brush.Warning.Bg}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warning.Border}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⚠" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush.Warning.Fg}"
+                               Visibility="{Binding HasAssociationHealthIssue, Converter={StaticResource BoolToVisibility}}" />
+                    <TextBlock Text="{Binding AssociationHealthText}" FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" TextWrapping="Wrap"
+                               Foreground="{DynamicResource Brush.Text.Primary}" />
+                </StackPanel>
+                <TextBlock Text="{Binding AssociationHealthDetail}" Style="{StaticResource GcMono}"
+                           FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap"
+                           Foreground="{DynamicResource Brush.Text.Tertiary}" />
+            </StackPanel>
+        </Border>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="420" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ==================== 左：列表 ==================== -->
+            <StackPanel Grid.Column="0">
+
+                <Border Style="{StaticResource GcCard.Flush}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- 工具栏 -->
+                        <Grid Grid.Row="0" Margin="16,12">
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Content="全部" GroupName="RiskFilter" Style="{StaticResource GcSegmentedItem}"
+                                             IsChecked="{Binding RiskFilter, Converter={StaticResource EnumToBool}, ConverterParameter=All, Mode=TwoWay}" />
+                                <RadioButton Content="高风险" GroupName="RiskFilter" Style="{StaticResource GcSegmentedItem}"
+                                             IsChecked="{Binding RiskFilter, Converter={StaticResource EnumToBool}, ConverterParameter=High, Mode=TwoWay}" />
+                                <RadioButton Content="中风险" GroupName="RiskFilter" Style="{StaticResource GcSegmentedItem}"
+                                             IsChecked="{Binding RiskFilter, Converter={StaticResource EnumToBool}, ConverterParameter=Medium, Mode=TwoWay}" />
+                                <RadioButton Content="低风险" GroupName="RiskFilter" Style="{StaticResource GcSegmentedItem}"
+                                             IsChecked="{Binding RiskFilter, Converter={StaticResource EnumToBool}, ConverterParameter=Low, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Grid Width="200" Margin="0,0,8,0">
+                                    <TextBox Style="{StaticResource GcTextBox}"
+                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                             VerticalContentAlignment="Center" Padding="32,0,12,0" />
+                                    <Path Width="16" Height="16" Stretch="Uniform" Margin="10,0,0,0"
+                                          HorizontalAlignment="Left" IsHitTestVisible="False"
+                                          Data="{StaticResource Icon.Search}"
+                                          Fill="Transparent" Stroke="{DynamicResource Brush.Text.Tertiary}"
+                                          StrokeThickness="1.75"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                </Grid>
+                                <CheckBox Content="显示已排除" VerticalAlignment="Center"
+                                          IsChecked="{Binding ShowExcluded}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Separator Grid.Row="0" VerticalAlignment="Bottom" Style="{StaticResource GcSeparator}" />
+
+                        <!-- 列表 -->
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding ResultsView}"
+                                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                                 ItemTemplate="{StaticResource ResultItemTemplate}"
+                                 MaxHeight="560"
+                                 Background="Transparent" BorderThickness="0" Padding="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="16,12" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Bd"
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        Padding="{TemplateBinding Padding}"
+                                                        SnapsToDevicePixels="True">
+                                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Bg.Hover}" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Bg.Active}" />
+                                                        <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
+                                                        <Setter TargetName="Bd" Property="BorderThickness" Value="3,0,0,0" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </Grid>
+                </Border>
+
+                <!-- 空态 -->
+                <Border Style="{StaticResource GcCard}"
+                        Visibility="{Binding ResultCount, Converter={StaticResource IntToVisibility}, ConverterParameter=inverse}">
+                    <StackPanel HorizontalAlignment="Center" Margin="0,24">
+                        <Path Width="48" Height="48" Stretch="Uniform"
+                              Data="{StaticResource Icon.Filter}"
+                              Fill="Transparent" Stroke="{DynamicResource Brush.Text.Tertiary}" StrokeThickness="1.4"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                              HorizontalAlignment="Center" />
+                        <TextBlock Text="当前筛选条件下没有条目" FontSize="16" FontWeight="SemiBold"
+                                   Margin="0,16,0,0" HorizontalAlignment="Center" />
+                        <TextBlock Text="试试切换筛选条件，或清空搜索框。"
+                                   Style="{StaticResource GcBody.Secondary}" Margin="0,4,0,0"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 操作栏 -->
+                <Border Background="{DynamicResource Brush.Bg.Surface}"
+                        BorderBrush="{DynamicResource Brush.Border.Default}" BorderThickness="1"
+                        CornerRadius="{StaticResource Radius.MD}"
+                        Padding="16" Margin="0,16,0,0"
+                        Visibility="{Binding SelectedCount, Converter={StaticResource IntToVisibility}}">
+                    <Grid>
+                        <TextBlock Text="{Binding SelectedSummary}" FontWeight="SemiBold" VerticalAlignment="Center" />
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Style="{StaticResource GcButton.Subtle.SM}" Margin="0,0,8,0"
+                                    Content="全部取消" Command="{Binding SelectNoneCommand}" />
+                            <Button Style="{StaticResource GcButton.Subtle.SM}" Margin="0,0,8,0"
+                                    Content="仅选低风险" Command="{Binding SelectLowRiskOnlyCommand}" />
+                            <Button Style="{StaticResource GcButton.Primary}" Margin="0,0,8,0"
+                                    Content="移入隔离区" Command="{Binding MoveToQuarantineCommand}" />
+                            <Button Style="{StaticResource GcButton.DangerSubtle}"
+                                    Content="永久删除" Command="{Binding PermanentDeleteCommand}"
+                                    IsEnabled="{Binding CanPermanentDelete}"
+                                    ToolTipService.ShowOnDisabled="True"
+                                    ToolTip="未以管理员身份运行时已禁用：采集不完整可能把正在使用的软件误判为残留，而永久删除不可恢复。" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- ==================== 右：详情面板 ==================== -->
+            <Border Grid.Column="2" Style="{StaticResource GcCard.Flush}">
+                <Grid>
+                    <!-- 未选择 -->
+                    <StackPanel HorizontalAlignment="Center" Margin="24,48"
+                                Visibility="{Binding SelectedItem, Converter={StaticResource NullToVisibility}, ConverterParameter=inverse}">
+                        <Path Width="48" Height="48" Stretch="Uniform"
+                              Data="{StaticResource Icon.FileText}"
+                              Fill="Transparent" Stroke="{DynamicResource Brush.Text.Tertiary}" StrokeThickness="1.4"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                              HorizontalAlignment="Center" />
+                        <TextBlock Text="选择一个条目" FontSize="16" FontWeight="SemiBold"
+                                   Margin="0,16,0,0" HorizontalAlignment="Center" />
+                        <TextBlock Text="点击左侧任意条目，查看它的检测依据、保护信号与推荐操作。"
+                                   Style="{StaticResource GcBody.Secondary}" Margin="0,4,0,0"
+                                   TextAlignment="Center" HorizontalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- 已选择 -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  Visibility="{Binding SelectedItem, Converter={StaticResource NullToVisibility}}">
+                        <StackPanel Margin="20">
+
+                            <!-- 头部 -->
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding SelectedItem.DisplayName}" FontSize="16" FontWeight="SemiBold" />
+                                <Border Style="{StaticResource GcBadge}" Margin="8,0,0,0"
+                                        Background="{Binding SelectedItem.Risk, Converter={StaticResource RiskBg}}"
+                                        BorderBrush="{Binding SelectedItem.Risk, Converter={StaticResource RiskBorder}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="12" Height="12" Stretch="Uniform"
+                                              Data="{Binding SelectedItem.Risk, Converter={StaticResource RiskIcon}}"
+                                              Fill="Transparent"
+                                              Stroke="{Binding SelectedItem.Risk, Converter={StaticResource RiskFg}}"
+                                              StrokeThickness="2"
+                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                        <TextBlock Margin="4,0,0,0"
+                                                   Foreground="{Binding SelectedItem.Risk, Converter={StaticResource RiskFg}}"
+                                                   Style="{StaticResource GcBadgeText}">
+                                            <Run Text="风险 " />
+                                            <Run Text="{Binding SelectedItem.RiskText, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <Grid Margin="0,8,0,0">
+                                <TextBlock Text="{Binding SelectedItem.Path}" Style="{StaticResource GcMono}"
+                                           VerticalAlignment="Center" />
+                                <Button HorizontalAlignment="Right" Style="{StaticResource GcIconButton.SM}"
+                                        Command="{Binding OpenSelectedFolderCommand}" ToolTip="打开文件夹">
+                                    <Path Width="16" Height="16" Stretch="Uniform"
+                                          Data="{StaticResource Icon.FolderOpen}"
+                                          Fill="Transparent"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          StrokeThickness="1.75"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                </Button>
+                            </Grid>
+
+                            <Separator Style="{StaticResource GcSeparator}" Margin="0,16,0,16" />
+
+                            <!-- 这里不叫「判定结论」：置信度是推断，不是结论 -->
+                            <TextBlock Text="检测到了什么" Style="{StaticResource GcOverline}" />
+
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource GcSunken}">
+                                    <StackPanel>
+                                        <TextBlock Text="使用迹象" Style="{StaticResource GcOverline}" />
+                                        <TextBlock Text="{Binding SelectedItem.ConfidenceLevel, Converter={StaticResource DetectionText}}"
+                                                   FontSize="15" FontWeight="SemiBold" Margin="0,12,0,0"
+                                                   TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource Brush.Text.Primary}" />
+                                        <TextBlock Text="{Binding SelectedRecentActivityText}" FontSize="13"
+                                                   Margin="0,8,0,0" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource Brush.Warning.Fg}" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                            <Border Style="{StaticResource GcConfidenceTrack.LG}" Width="110">
+                                                <Border Width="{Binding SelectedItem.ConfidenceScore, Converter={StaticResource ConfidenceWidth}, ConverterParameter=110}"
+                                                        Height="6" CornerRadius="{StaticResource Radius.Pill}"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{Binding SelectedItem.ConfidenceLevel, Converter={StaticResource ConfidenceBrush}}" />
+                                            </Border>
+                                            <TextBlock Text="{Binding SelectedItem.ConfidenceScore}"
+                                                       FontSize="13" FontWeight="SemiBold" Margin="8,0,0,0"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                        </StackPanel>
+                                        <TextBlock Text="数字表示「未检测到使用迹象」的证据强度，不代表它确实是残留。"
+                                                   Style="{StaticResource GcCaption}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="2" Style="{StaticResource GcSunken}">
+                                    <StackPanel>
+                                        <TextBlock Text="清理风险" Style="{StaticResource GcOverline}" />
+                                        <Border Style="{StaticResource GcBadge}" Margin="0,12,0,0" HorizontalAlignment="Left"
+                                                Background="{Binding SelectedItem.Risk, Converter={StaticResource RiskBg}}"
+                                                BorderBrush="{Binding SelectedItem.Risk, Converter={StaticResource RiskBorder}}">
+                                            <TextBlock Text="{Binding SelectedItem.RiskText}"
+                                                       Foreground="{Binding SelectedItem.Risk, Converter={StaticResource RiskFg}}"
+                                                       Style="{StaticResource GcBadgeText}" />
+                                        </Border>
+                                        <TextBlock Text="{Binding SelectedItem.ProtectionReason}"
+                                                   Style="{StaticResource GcCaption}" Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Core 文档 16 第一步：AppData 导航。
+                                 这是**导航，不是判定** —— Core 实测 AppData 匹配 AUC 0.327（反向），
+                                 所以这里不做任何提示或打分，只是把用户带到他自己能一眼看明白的地方。 -->
+                            <Border Style="{StaticResource GcSunken}" Margin="0,16,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="自己去看一眼" Style="{StaticResource GcOverline}" />
+                                    <TextBlock FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"
+                                               Foreground="{DynamicResource Brush.Text.Secondary}">
+                                        很多软件把数据写在 AppData 而不是安装目录 —— 安装目录可能几年不动，
+                                        单看它活动为零并不代表没人用。这两个目录是 Windows 存放软件数据的地方，
+                                        你在里面按软件名找一下，看看最近有没有更新 —— 你自己判断比分数可靠。
+                                    </TextBlock>
+                                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                        <Button Style="{StaticResource GcButton.SM}" Margin="0,0,8,0"
+                                                Content="打开 %APPDATA%"
+                                                Visibility="{Binding HasAppDataRoaming, Converter={StaticResource BoolToVisibility}}"
+                                                Command="{Binding OpenAppDataRoamingCommand}"
+                                                ToolTip="{Binding AppDataRoamingPath}" />
+                                        <Button Style="{StaticResource GcButton.SM}"
+                                                Content="打开 %LOCALAPPDATA%"
+                                                Visibility="{Binding HasAppDataLocal, Converter={StaticResource BoolToVisibility}}"
+                                                Command="{Binding OpenAppDataLocalCommand}"
+                                                ToolTip="{Binding AppDataLocalPath}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 自带卸载器：比删除目录安全得多，Core 对这类目录从不建议隔离 -->
+                            <Border Style="{StaticResource GcBanner.Info}" Margin="0,16,0,0"
+                                    Visibility="{Binding SelectedHasUninstaller, Converter={StaticResource BoolToVisibility}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="该目录自带卸载程序" FontWeight="SemiBold" FontSize="13"
+                                                   Foreground="{DynamicResource Brush.Accent.Fg}" />
+                                        <TextBlock Text="建议优先使用自带卸载器：直接删除目录会残留注册表项、服务与系统关联。"
+                                                   FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Style="{StaticResource GcButton.Primary.SM}"
+                                            Margin="12,0,0,0" VerticalAlignment="Center"
+                                            Content="运行自带卸载器" Command="{Binding RunUninstallerCommand}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- 不叫「推荐操作」：Core 0.2 已正式放弃自动判定，
+                                 Recommendation 仍由同一套不可靠的分数推导而来 -->
+                            <Border Style="{StaticResource GcBanner.Info}" Margin="0,8,0,0">
+                                <StackPanel>
+                                    <TextBlock FontWeight="SemiBold" FontSize="13"
+                                               Foreground="{DynamicResource Brush.Accent.Fg}">
+                                        <Run Text="Core 的处理倾向：" />
+                                        <Run Text="{Binding SelectedItem.RecommendationText, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <!-- 遵守协作约定 §配套③「文案写机制，不写统计」：
+                                         这里不写本机回标数字（换台机器就错，文案写死没人回头改）。 -->
+                                    <TextBlock Text="这个倾向同样由那条推断得出，因此同样不可靠 —— 仅供参考。"
+                                               FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"
+                                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                    <TextBlock Text="GhostCleaner 不会自动执行任何删除。是否处理由你决定。"
+                                               FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"
+                                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 观测冲突：Core 明确它比 IsUncertainty 更强 ——
+                                 不是"没查清楚"，而是"查出来了但自相矛盾"。单独成区，不混进其它提示。 -->
+                            <Border Margin="0,8,0,0" Padding="14,10"
+                                    CornerRadius="{StaticResource Radius.SM}"
+                                    BorderThickness="1"
+                                    Background="{DynamicResource Brush.Warning.Bg}"
+                                    BorderBrush="{DynamicResource Brush.Warning.Border}"
+                                    Visibility="{Binding HasSelectedConflictWarnings, Converter={StaticResource BoolToVisibility}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Path Grid.Column="0" Width="18" Height="18" Stretch="Uniform"
+                                          Margin="0,2,12,0" VerticalAlignment="Top"
+                                          Data="{StaticResource Icon.AlertTriangle}"
+                                          Fill="Transparent"
+                                          Stroke="{DynamicResource Brush.Warning.Fg}"
+                                          StrokeThickness="1.75"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="观测冲突 —— 两项观测互相矛盾"
+                                                   FontWeight="SemiBold" FontSize="13"
+                                                   Foreground="{DynamicResource Brush.Warning.Fg}" />
+                                        <ItemsControl ItemsSource="{Binding SelectedConflictWarnings}" Margin="0,2,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Message}" FontSize="12" TextWrapping="Wrap"
+                                                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- 不确定信号：这是"没查清楚"，不是"可以清理" -->
+                            <Border Style="{StaticResource GcBanner}" Margin="0,8,0,0"
+                                    Visibility="{Binding HasSelectedUncertaintyWarnings, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel>
+                                    <TextBlock Text="不确定信号 —— 没查清楚，不代表没人用" FontWeight="SemiBold" FontSize="13"
+                                               Foreground="{DynamicResource Brush.Warning.Fg}" />
+                                    <ItemsControl ItemsSource="{Binding SelectedUncertaintyWarnings}" Margin="0,2,0,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <!-- ScanWarning 是结构化对象：显式绑 Message，不依赖 ToString() -->
+                                                <TextBlock Text="{Binding Message}" FontSize="12" TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 其它提示 -->
+                            <Border Style="{StaticResource GcBanner}" Margin="0,8,0,0"
+                                    Visibility="{Binding HasSelectedOtherWarnings, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel>
+                                    <TextBlock Text="其它提示" FontWeight="SemiBold" FontSize="13"
+                                               Foreground="{DynamicResource Brush.Warning.Fg}" />
+                                    <ItemsControl ItemsSource="{Binding SelectedOtherWarnings}" Margin="0,2,0,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Message}" FontSize="12" TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 检测依据（正向） -->
+                            <TextBlock Text="未检测到的系统关联" Style="{StaticResource GcOverline}" Margin="0,20,0,8" />
+                            <TextBlock Text="下列关联没有被检测到。只有在对应来源确实检查成功时，它才说明「可能没人用它」；"
+                                       Style="{StaticResource GcCaption}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                            <TextBlock Text="系统重装过的机器上，所有目录都会缺失这些关联 —— 此时它们失去区分度。"
+                                       Style="{StaticResource GcCaption}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                            <ItemsControl ItemsSource="{Binding SelectedItem.PositiveEvidence}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="16" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                                                  Data="{StaticResource Icon.Check}" Fill="Transparent"
+                                                  Stroke="{DynamicResource Brush.Success}" StrokeThickness="1.9"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                                  VerticalAlignment="Top" Margin="0,2,0,0" />
+                                            <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Description}" FontSize="12" TextWrapping="Wrap"
+                                                           Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding ScoreText}" FontSize="13"
+                                                       FontWeight="SemiBold" VerticalAlignment="Top"
+                                                       Foreground="{DynamicResource Brush.Success.Fg}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- 保护信号（负向） -->
+                            <TextBlock Text="保护信号 · 支持「保留」" Style="{StaticResource GcOverline}" Margin="0,16,0,8" />
+                            <ItemsControl ItemsSource="{Binding SelectedItem.NegativeEvidence}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="16" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                                                  Data="{StaticResource Icon.AlertTriangle}" Fill="Transparent"
+                                                  Stroke="{DynamicResource Brush.Warning}" StrokeThickness="1.75"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                                  VerticalAlignment="Top" Margin="0,2,0,0" />
+                                            <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Description}" FontSize="12" TextWrapping="Wrap"
+                                                           Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding ScoreText}" FontSize="13"
+                                                       FontWeight="SemiBold" VerticalAlignment="Top"
+                                                       Foreground="{DynamicResource Brush.Warning.Fg}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- 文件信息 -->
+                            <TextBlock Text="文件信息" Style="{StaticResource GcOverline}" Margin="0,20,0,8" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="96" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition /><RowDefinition /><RowDefinition />
+                                    <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="大小" Style="{StaticResource GcCaption}" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.SizeText}" FontSize="13" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="文件数" Style="{StaticResource GcCaption}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.FileCount}" FontSize="13" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="目录数" Style="{StaticResource GcCaption}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedItem.DirectoryCount}" FontSize="13" />
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="最后修改" Style="{StaticResource GcCaption}" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" FontSize="13"
+                                           Text="{Binding SelectedItem.LastModified, StringFormat=yyyy-MM-dd HH:mm}" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="版本" Style="{StaticResource GcCaption}" />
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedItem.Version}" FontSize="13" />
+
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="厂商" Style="{StaticResource GcCaption}" />
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedItem.Publisher}" FontSize="13" />
+
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="目录分类" Style="{StaticResource GcCaption}" />
+                                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedItem.DirectoryCategory}" FontSize="13" />
+                            </Grid>
+
+                            <!-- 系统关联 -->
+                            <TextBlock Text="系统关联" Style="{StaticResource GcOverline}" Margin="0,20,0,8" />
+                            <TextBlock Text="{Binding SelectedItem.EvidenceText}" Style="{StaticResource GcBody.Secondary}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 详情底部操作 -->
+        <Border Background="{DynamicResource Brush.Bg.Surface}"
+                BorderBrush="{DynamicResource Brush.Border.Default}" BorderThickness="1"
+                CornerRadius="{StaticResource Radius.MD}" Padding="16" Margin="436,16,0,0"
+                Visibility="{Binding SelectedItem, Converter={StaticResource NullToVisibility}}">
+            <StackPanel Orientation="Horizontal">
+                <Button Style="{StaticResource GcButton.Primary.SM}" Margin="0,0,8,0"
+                        Content="移入隔离区" Command="{Binding MoveToQuarantineCommand}" />
+                <Button Style="{StaticResource GcButton.SM}" Margin="0,0,8,0"
+                        Content="打开文件夹" Command="{Binding OpenSelectedFolderCommand}" />
+                <Button Style="{StaticResource GcButton.SM}" Margin="0,0,8,0"
+                        Content="运行卸载程序" Command="{Binding RunUninstallerCommand}" />
+                <Button Style="{StaticResource GcButton.Subtle.SM}"
+                        Content="加入白名单" Command="{Binding AddSelectedToWhitelistCommand}" />
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

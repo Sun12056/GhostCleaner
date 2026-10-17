@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>GhostCleaner.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <!-- 应用图标（任务栏 / 窗口标题栏 / 资源管理器）。
+         源为 docs/ui-0.1/assets/brand/app-icon.svg，由 tools/GenAppIcon 渲染为多尺寸 ICO。 -->
+    <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 仅用于 FolderBrowserDialog（目录选择），避免与 WPF 同名类型冲突 -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GhostCleaner.Core\GhostCleaner.Core.csproj" />
+    <ProjectReference Include="..\GhostCleaner.Registry\GhostCleaner.Registry.csproj" />
+    <ProjectReference Include="..\GhostCleaner.Scanner\GhostCleaner.Scanner.csproj" />
+    <ProjectReference Include="..\GhostCleaner.Services\GhostCleaner.Services.csproj" />
+  </ItemGroup>
+
+</Project>

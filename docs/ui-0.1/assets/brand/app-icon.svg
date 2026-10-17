@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none" role="img" aria-label="GhostCleaner App Icon">
+  <title>GhostCleaner — Windows App Icon 256</title>
+  <!-- Windows 11 风格圆角方形底 (56 / 256 ≈ 22%) -->
+  <rect width="256" height="256" rx="56" fill="#3F5FE0"/>
+  <!-- 盾形边界 -->
+  <path d="M128 30 L214 64 V122 C214 174 178 208 128 226 C78 208 42 174 42 122 V64 Z"
+        fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linejoin="round"/>
+  <!-- 幽灵 -->
+  <path d="M84 162 V122 a44 44 0 0 1 88 0 V162 q -14.5 24 -29.33 0 q -14.67 24 -29.34 0 q -14.67 24 -29.33 0 Z"
+        fill="#FFFFFF"/>
+</svg>
