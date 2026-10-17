@@ -33,3 +33,9 @@ desktop.ini
 TestResults/
 coverage*.xml
 *.trx
+
+## Core 0.1 真实验证：本地路径映射表（含未脱敏真实路径，禁止入库）
+*.path-map.local.json
+
+## 未回标的原始扫描输出（回标后的 labels.jsonl 可以入库）
+validation/raw/
