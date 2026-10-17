@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Sun12056/GhostCleaner/validation/label-schema-v1.json",
+  "title": "GhostCleaner Core 0.1 Real-world Validation Label",
+  "description": "人工回标 JSONL 中每一行的结构。用于 Core 0.1 真实 Windows 验证的误报/漏报统计。",
+  "type": "object",
+  "required": [
+    "schemaVersion", "sampleId", "sampleClass", "scannedPath",
+    "pathRedacted", "groundTruth", "groundTruthConfidence",
+    "core", "evidence", "warnings", "associationSourceHealth", "environment"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+
+    "sampleId": {
+      "type": "string",
+      "pattern": "^[A-JU]-[0-9]{3}$",
+      "description": "{类代号}-{三位序号}，全局唯一。U = 尚未人工归类（工具默认前缀）"
+    },
+    "sampleClass": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "U"],
+      "description": "A 重装残留 / B 正常软件 / C 绿色软件 / D 游戏 / E 开发 / F 用户数据 / G 运行中 / H 外置或不可达 / I 系统或重解析点 / J 空目录下载目录安装包"
+    },
+    "scannedPath": {
+      "type": "string",
+      "description": "扫描路径。脱敏后写入；原始路径仅存于本地 path-map.local.json（不入库）"
+    },
+    "pathRedacted": { "type": "boolean" },
+
+    "groundTruth": {
+      "type": ["string", "null"],
+      "enum": [
+        "ConfirmedOrphan", "ActiveSoftware", "PortableSoftware",
+        "GameLibrary", "DevelopmentData", "UserData", "Unknown", null
+      ],
+      "description": "人工真值。null = 尚未回标（工具导出的初始状态）。Unknown 单列统计，不进入主指标分母"
+    },
+    "groundTruthConfidence": {
+      "type": ["string", "null"],
+      "enum": ["Certain", "Likely", "Unsure", null]
+    },
+    "isActuallyInUse": { "type": "boolean", "description": "该软件/目录当前是否仍在被实际使用" },
+    "containsUserData": { "type": "boolean", "description": "是否含用户文档/配置/存档" },
+    "humanNote": { "type": ["string", "null"], "description": "人工复核说明" },
+
+    "core": {
+      "type": "object",
+      "required": [
+        "confidenceScore", "confidenceLevel", "riskScore", "risk",
+        "recommendation", "isProtected", "isExcluded", "directoryCategory"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "confidenceScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "confidenceLevel": {
+          "type": "string",
+          "enum": ["Normal", "Suspicious", "HighProbability", "VeryHighProbability"]
+        },
+        "riskScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "risk": { "type": "string", "enum": ["Low", "Medium", "High"] },
+        "recommendation": {
+          "type": "string",
+          "enum": ["Keep", "Review", "Quarantine", "HighRiskReview"],
+          "description": "不含 Delete —— Core 0.1 推荐模型永不包含删除"
+        },
+        "isProtected": { "type": "boolean" },
+        "protectionReason": { "type": ["string", "null"] },
+        "isExcluded": { "type": "boolean" },
+        "excludeReason": { "type": ["string", "null"] },
+        "directoryCategory": {
+          "type": ["string", "null"],
+          "description": "开发项目 / 游戏 / 用户数据 / 绿色软件 / null"
+        },
+        "isRunning": {
+          "type": "boolean",
+          "description": "扫描时是否检测到占用该目录的进程。G 类（运行中软件）的关键字段"
+        }
+      }
+    },
+
+    "evidence": {
+      "type": "array",
+      "description": "Core 输出的完整证据列表（正负双向）",
+      "items": {
+        "type": "object",
+        "required": ["type", "score", "isPositive", "severity"],
+        "additionalProperties": false,
+        "properties": {
+          "type": { "type": "string", "description": "与 EvidenceType 枚举同名" },
+          "score": { "type": "integer" },
+          "isPositive": { "type": "boolean" },
+          "severity": { "type": "string", "enum": ["Info", "Notice", "Warning", "Critical"] }
+        }
+      }
+    },
+
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "associationSourceHealth": {
+      "type": "array",
+      "description": "采集源健康度。决定置信度上限，必须记录以便解释 ConfidenceScore",
+      "items": {
+        "type": "object",
+        "required": ["sourceName", "status", "itemCount"],
+        "additionalProperties": false,
+        "properties": {
+          "sourceName": { "type": "string" },
+          "status": { "type": "string", "enum": ["NotRun", "Success", "Failed", "Partial"] },
+          "itemCount": { "type": "integer", "minimum": 0 },
+          "errorMessage": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "environment": {
+      "type": "object",
+      "required": ["coreVersion", "gitCommit", "scannedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "osVersion": { "type": ["string", "null"] },
+        "coreVersion": { "type": "string" },
+        "gitCommit": { "type": "string" },
+        "runAsAdmin": { "type": ["boolean", "null"] },
+        "scannedAt": { "type": "string", "format": "date-time" },
+        "scanDurationMs": { "type": ["integer", "null"] }
+      }
+    }
+  }
+}

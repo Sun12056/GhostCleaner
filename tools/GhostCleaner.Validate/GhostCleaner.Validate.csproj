@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>GhostCleaner.Validate</RootNamespace>
+    <AssemblyName>GhostCleaner.Validate</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- 只依赖 Core / Registry / Scanner。
+       刻意不引用 GhostCleaner.Services —— CleanupService 与 QuarantineManager 都不在本工具的可达范围内，
+       从工程结构上保证它不可能执行删除、隔离或注册表写入。 -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GhostCleaner.Core\GhostCleaner.Core.csproj" />
+    <ProjectReference Include="..\..\src\GhostCleaner.Registry\GhostCleaner.Registry.csproj" />
+    <ProjectReference Include="..\..\src\GhostCleaner.Scanner\GhostCleaner.Scanner.csproj" />
+  </ItemGroup>
+
+</Project>
